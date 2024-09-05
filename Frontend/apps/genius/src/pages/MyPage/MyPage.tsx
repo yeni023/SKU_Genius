@@ -9,9 +9,6 @@ import {
   ProfileButton,
   NameButton,
   IDButton,
-  SocialButton,
-  SocialButtonsContainer,
-  SocialImage,
   SeedNumButtonContainer,
   SeedNumButton,
   QuestionButton,
@@ -23,8 +20,6 @@ import {
   BottomButtonContainer
 } from "./MyPage";
 import bgImage from "../../assets/images/MyPageBG.svg";
-import followingImage from "../../assets/images/Following.svg";
-import followerImage from "../../assets/images/Follower.svg";
 import AnswerImage from "../../assets/images/Answer.svg";
 
 const MyPage: React.FC = () => {
@@ -92,16 +87,7 @@ const MyPage: React.FC = () => {
         <IDButton onClick={() => console.log("ID button clicked!")}>
           {email || "Email"}
         </IDButton>
-        <SocialButtonsContainer>
-          <SocialButton
-            onClick={() => console.log("Following button clicked!")}
-          >
-            <SocialImage src={followingImage} alt="Following" />
-          </SocialButton>
-          <SocialButton onClick={() => console.log("Follower button clicked!")}>
-            <SocialImage src={followerImage} alt="Follower" />
-          </SocialButton>
-        </SocialButtonsContainer>
+        
         <SeedNumButtonContainer>
           <SeedNumButton
             onClick={() => console.log("SeedNum button clicked!")}

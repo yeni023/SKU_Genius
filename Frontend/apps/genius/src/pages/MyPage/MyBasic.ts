@@ -6,6 +6,8 @@ export const PageContainer = styled.div`
   display: flex;
   min-height: 100vh;
   width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 `;
 
 export const TopBar = styled.div`
@@ -52,13 +54,15 @@ export const ImageSection = styled.div<ImageSectionProps>`
   background-size: cover;
   background-position: left center;
   background-repeat: no-repeat;
-  width: 30vw;
-  min-height: 100vh;
+  width: 28vw;  /* 너비를 28%로 줄여서 맞춤 */
+  height: 100vh;  /* 전체 화면 높이 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 28vh;
+  padding-top: 25vh; /* 패딩을 줄여서 화면 내에 맞춤 */
+  overflow: hidden;  /* 스크롤 방지 */
+  box-sizing: border-box; /* 패딩과 테두리 포함 */
 `;
 
 export const TopButtonContainer = styled.div`
@@ -85,14 +89,16 @@ export const BottomButtonContainer = styled.div`
 
 export const ColorSection = styled.div`
   background-color: #acd0cb;
-  width: 70vw;
-  min-height: 100vh;
+  width: 72vw;  /* 너비를 72%로 조정 */
+  height: 100vh;  /* 전체 화면 높이 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 155px;
-  position: relative;
+  padding-top: 150px; /* 패딩을 적절히 조정 */
+  overflow-x: hidden;
+  overflow-y: auto;  /* 스크롤 방지 */
+  box-sizing: border-box; /* 패딩과 테두리 포함 */
 `;
 
 type ProfileButtonProps = {
@@ -125,7 +131,7 @@ export const NameButton = styled.button`
   border: 5px solid #acd0cb;
   border-radius: 20px;
   padding: 15px 30px;
-  font-size: 27px;
+  font-size: 26px;
   font-weight: bold;
   cursor: pointer;
   width: 300px;
@@ -139,7 +145,7 @@ export const IDButton = styled.button`
   border: 5px solid #acd0cb;
   border-radius: 20px;
   padding: 15px 30px;
-  font-size: 27px;
+  font-size: 22px;
   font-weight: bold;
   cursor: pointer;
   width: 300px;

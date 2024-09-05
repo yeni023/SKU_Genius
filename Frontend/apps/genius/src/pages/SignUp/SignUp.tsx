@@ -152,7 +152,7 @@ const SignUp: React.FC = () => {
                   checked={agreeTermsRequired}
                   onChange={() => setAgreeTermsRequired(!agreeTermsRequired)}
                 />
-                (필수) 이용약관 동의
+                (필수) 서비스 이용약관 동의
               </SignUpStyle.CheckboxLabel>
             </SignUpStyle.Row>
             <SignUpStyle.Row>

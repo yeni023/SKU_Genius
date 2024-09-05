@@ -123,6 +123,12 @@ const CreateStory: React.FC = () => {
     setLoaded(true);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      showGreeting();
+    }
+  };
+
   if (userId === null) {
     return <div>로그인 정보를 확인하는 중...</div>;
   }
@@ -147,6 +153,7 @@ const CreateStory: React.FC = () => {
             placeholder="작가명을 입력하세요"
             value={writerName}
             onChange={updateWriterName}
+            onKeyDown={handleKeyDown} // Add this line to handle Enter key
           />
           
           <div>

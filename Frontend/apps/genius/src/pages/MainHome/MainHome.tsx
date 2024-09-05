@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from '../Navbar/Navbar';
 import * as Styles from "./MainHomeStyle";
+import { useInView } from 'react-intersection-observer';
 
 const MainHome: React.FC = () => {
   const navigate = useNavigate();
@@ -34,9 +35,6 @@ const MainHome: React.FC = () => {
       }
     };
 
-    // Hide scrollbars on page load
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
 
     window.addEventListener("wheel", handleScroll, { passive: false });
 
@@ -67,6 +65,8 @@ const handleCreateStoryClick = () => {
       navigate('/CreateStory');
   }
 };
+
+
 
   return (
     <Styles.AppContainer>

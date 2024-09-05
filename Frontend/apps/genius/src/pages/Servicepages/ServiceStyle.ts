@@ -110,7 +110,7 @@ export const Section = styled.section`
   ul {
     list-style: none;
     padding: 0;
-    font-size: 16px;
+    font-size: 18px;
   }
 
   ul > li {
@@ -121,9 +121,10 @@ export const Section = styled.section`
     background-color: #f5f5f5;
     border: 1px solid #ddd;
     border-radius: 5px;
-    padding: 10px;
+    padding: 3px;
     transition: background-color 0.3s ease;
     position: relative;
+    top: 6px;
 
     &:hover {
       background-color: #e0e0e0;
@@ -154,6 +155,7 @@ export const Section = styled.section`
       border: 1px solid #ddd;
       border-top: none;
       border-radius: 0 0 5px 5px;
+      margin: 0 10px;
     }
 
     &.expanded > p {

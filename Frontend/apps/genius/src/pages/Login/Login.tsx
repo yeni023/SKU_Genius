@@ -25,22 +25,27 @@ const Login: React.FC = () => {
       const foundMember = members.find((member: any) => member.email === formData.email);
   
       if (foundMember && foundMember.password === formData.password) {
-        toast.success('로그인이 완료되었습니다!');
+        toast.success('로그인이 완료되었습니다!', {
+          hideProgressBar: true, // 진행 막대 숨기기
+        });
   
         // 로그인 성공 시 사용자 정보를 localStorage에 저장
         localStorage.setItem('user', JSON.stringify(foundMember));
         localStorage.setItem('isLoggedIn', 'true'); // 로그인 상태 저장
         
-  
         setTimeout(() => {
           navigate('/MainHome');
         }, 1500); 
       } else {
-        toast.error('아이디 또는 비밀번호가 올바르지 않습니다.');
+        toast.error('아이디 또는 비밀번호가 올바르지 않습니다.', {
+          hideProgressBar: true, // 진행 막대 숨기기
+        });
       }
     } catch (error) {
       console.error('로그인 오류:', error);
-      toast.error('로그인에 실패했습니다. 다시 시도해주세요.');
+      toast.error('로그인에 실패했습니다. 다시 시도해주세요.', {
+        hideProgressBar: true, // 진행 막대 숨기기
+      });
     }
   };
   

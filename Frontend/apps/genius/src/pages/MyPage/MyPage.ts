@@ -35,7 +35,7 @@ export const BookButton = styled.button`
   background-repeat: no-repeat;
   background-color: #ffffff;
   width: 600px;
-  height: 400px;
+  height: 300px;
   border: none;
   border-radius: 40px;
   cursor: pointer;
@@ -43,11 +43,11 @@ export const BookButton = styled.button`
   margin: 0 20px;
   padding: 0;
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background-image 0.3s ease,
-    background-size 0.3s ease,
-    background-color 0.3s ease;
+    transform 0.8s ease,
+    box-shadow 0.5s ease,
+    background-image 0.5s ease,
+    background-size 0.8s ease,
+    background-color 0.8s ease;
   outline: none;
 
   &:hover {
@@ -66,7 +66,7 @@ export const FlowerButton = styled.button`
   background-repeat: no-repeat;
   background-color: #ffffff;
   width: 600px;
-  height: 400px;
+  height: 300px;
   border: none;
   border-radius: 40px;
   cursor: pointer;
@@ -74,11 +74,11 @@ export const FlowerButton = styled.button`
   margin: 0 20px;
   padding: 0;
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background-image 0.3s ease,
-    background-size 0.3s ease,
-    background-color 0.3s ease;
+  transform 0.8s ease,
+    box-shadow 0.5s ease,
+    background-image 0.5s ease,
+    background-size 0.8s ease,
+    background-color 0.8s ease;
   outline: none;
 
   &:hover {
@@ -92,12 +92,12 @@ export const FlowerButton = styled.button`
 
 export const ForestButton = styled.button`
   background-image: url(${MyPageForest});
-  background-size: 113% 113%;
-  background-position: center;
+  background-size: 105% 125%;
+  background-position: center calc(50% + 10px);
   background-repeat: no-repeat;
   background-color: #ffffff;
   width: 1250px;
-  height: 400px;
+  height: 320px;
   border: none;
   border-radius: 40px;
   cursor: pointer;
@@ -105,11 +105,11 @@ export const ForestButton = styled.button`
   margin: 20px auto;
   padding: 0;
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background-image 0.3s ease,
-    background-size 0.3s ease,
-    background-color 0.3s ease;
+    transform 0.8s ease,
+    box-shadow 0.5s ease,
+    background-image 0.5s ease,
+    background-size 0.8s ease,
+    background-color 0.8s ease;
   outline: none;
 
   &:hover {

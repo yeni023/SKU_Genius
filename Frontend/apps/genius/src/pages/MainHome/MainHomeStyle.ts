@@ -124,11 +124,13 @@ export const Section = styled.div`
 
   &.visible {
     opacity: 1;
+    animation: ${fadeIn} 1s ease forwards;
   }
 
   img {
     max-width: 50%;
     margin: 10px;
+    
   }
 
   p {

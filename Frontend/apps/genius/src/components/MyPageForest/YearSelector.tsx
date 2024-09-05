@@ -8,17 +8,16 @@ interface YearSelectorProps {
 
 // Styled-components로 스타일링된 select 요소
 const StyledSelect = styled.select`
+  margin-top: 50px;
   background: transparent;
   border: none; // 테두리 제거
   width: 100%; // 너비 설정
-  padding: 8px 16px; // 패딩
+  padding: 15px 20px; // 패딩
   font-size: 32px; // 글자 크기
   cursor: pointer; // 커서 스타일
   font-family: "Inter";
   font-style: normal;
   font-weight: 700;
-  font-size: 30px;
-  line-height: 44px;
   text-align: center;
 
   color: #42655b;
@@ -30,7 +29,7 @@ const StyledSelect = styled.select`
 `;
 
 const Container = styled.div`
-  padding: 10px;
+  padding: 15px 20px;
 `;
 
 const YearSelector: React.FC<YearSelectorProps> = ({ year, setYear }) => {

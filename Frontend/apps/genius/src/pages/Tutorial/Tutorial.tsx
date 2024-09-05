@@ -61,12 +61,13 @@ const Tutorial: React.FC = () => {
         playAudio('src/assets/audio/Tutorial7.mp3');
         break;
       default:
+        playAudio('src/assets/audio/Tutorial1.mp3'); // Default case에서 재생
         break;
     }
   };
 
   useEffect(() => {
-    // 다음 단계로 넘어갈 때 오디오 재생
+    // 컴포넌트가 마운트될 때 초기 오디오 재생
     handlePlayAudio();
 
     // 컴포넌트 언마운트 시 오디오 중지
@@ -76,6 +77,11 @@ const Tutorial: React.FC = () => {
         audioRef.current.currentTime = 0;
       }
     };
+  }, []);
+
+  useEffect(() => {
+    // currentStep이 변경될 때 오디오 재생
+    handlePlayAudio();
   }, [currentStep]);
 
   const getStepContent = () => {
