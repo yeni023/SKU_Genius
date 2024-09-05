@@ -908,6 +908,29 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         )
 
         return Response({"message" : "동화 줄거리가 생성되었습니다.", "동화 줄거리":{completion.choices[0].message.content}}, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'])
+    def bookwholestory(self, request):
+        writer = request.query_params.get('writer')
+
+        # Draft에서 writer로 해당 멤버 찾기
+        member = get_object_or_404(Draft, writer=writer)
+
+        # Draft의 user_id 가져오기
+        serializer = DraftSerializer(member)
+        user_id = serializer.data.get('user')
+
+        # DraftPage에서 user가 user_id이고 draft가 가장 큰 값을 찾기
+        draft_pages = DraftPage.objects.filter(user=user_id).order_by('-draft__id')
+
+        # 가장 큰 draft와 연결된 페이지들 가져오기
+        if draft_pages.exists():
+            largest_draft_pages = draft_pages.filter(draft=draft_pages.first().draft)
+            # 필요한 필드(pageNum, pageContent)만 추출
+            result = largest_draft_pages.values('pageNum', 'pageContent')
+            return Response(result, status=status.HTTP_200_OK)
+        
+        return Response({"detail": "No pages found."}, status=status.HTTP_404_NOT_FOUND)
 
 class FeedBackViewSet(viewsets.ModelViewSet):
     queryset = FeedBack.objects.all()
