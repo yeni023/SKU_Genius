@@ -6,15 +6,10 @@ import {
   ProfileButton,
   NameButton,
   IDButton,
-  SocialButton,
-  SocialButtonsContainer,
-  SocialImage,
   OvalButton
 } from "./OtherBasic";
 import bgImage from "../../assets/images/MyPageBG.svg";
 import profileImage from "../../assets/images/OtherProfile.svg";
-import followingImage from "../../assets/images/Following.svg";
-import followerImage from "../../assets/images/Follower.svg";
 
 const OtherBasic: React.FC = () => {
   return (
@@ -31,16 +26,6 @@ const OtherBasic: React.FC = () => {
         <IDButton onClick={() => console.log("ID button clicked!")}>
           yunseo_o
         </IDButton>
-        <SocialButtonsContainer>
-          <SocialButton
-            onClick={() => console.log("Following button clicked!")}
-          >
-            <SocialImage src={followingImage} alt="Following" />
-          </SocialButton>
-          <SocialButton onClick={() => console.log("Follower button clicked!")}>
-            <SocialImage src={followerImage} alt="Follower" />
-          </SocialButton>
-        </SocialButtonsContainer>
         <OvalButton onClick={() => console.log("New Oval Button clicked!")}>
           팔로우
         </OvalButton>

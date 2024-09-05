@@ -32,7 +32,7 @@ const TaleGraph: React.FC<TaleGraphProps> = ({ year }) => {
 
   return (
     <div>
-      <BarChart width={1400} height={400} data={data}>
+      <BarChart width={1300} height={400} data={data}>
         <CartesianGrid strokeDasharray="3 " />
         <XAxis dataKey="name" />
         <YAxis />

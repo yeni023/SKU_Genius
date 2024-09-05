@@ -45,16 +45,6 @@ const MyBasic: React.FC = () => {
         <IDButton onClick={() => console.log("ID button clicked!")}>
           _.zer023
         </IDButton>
-        <SocialButtonsContainer>
-          <SocialButton
-            onClick={() => console.log("Following button clicked!")}
-          >
-            <SocialImage src={followingImage} alt="Following" />
-          </SocialButton>
-          <SocialButton onClick={() => console.log("Follower button clicked!")}>
-            <SocialImage src={followerImage} alt="Follower" />
-          </SocialButton>
-        </SocialButtonsContainer>
         <SeedNumButtonContainer>
           <SeedNumButton
             onClick={() => console.log("SeedNum button clicked!")}

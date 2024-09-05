@@ -20,8 +20,10 @@ export const TopPane = styled.div`
   justify-content: center;
   align-items: center;
 
+  margin-left: 50px;
+  margin-right: 50px;
   margin-bottom: 69px;
-  gap: 135px;
+  gap: 130px;
 `;
 export const BottomPane = styled.div`
   /* Rectangle 161 */
@@ -30,6 +32,7 @@ export const BottomPane = styled.div`
 
   width: 1500px;
   height: 450px;
+  margin-bottom: 80px;
 
   display: flex;
   flex-direction: row;
@@ -49,7 +52,7 @@ export const Title = styled.div`
 
   color: #42655b;
   display: flex;
-  margin-top: -140px;
+  margin-top: -150px;
 `;
 export const FlowerContainer = styled.div`
   display: flex;
@@ -61,8 +64,8 @@ export const FlowerImage = styled.div`
   background: url(${MyForestFlower});
   background-repeat: no-repeat;
   background-size: cover;
-  width: 330px;
-  height: 330px;
+  width: 300px;
+  height: 300px;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
   margin-top: 30px;
   margin-bottom: 30px;
@@ -82,7 +85,7 @@ export const Text1 = styled.div`
   font-family: "Inter";
   font-style: normal;
   font-weight: 600;
-  font-size: 24px;
+  font-size: 23px;
   line-height: 29px;
   text-align: center;
 
@@ -94,7 +97,8 @@ export const Text2 = styled.div`
   font-family: "Inter";
   font-style: normal;
   font-weight: 600;
-  font-size: 40px;
+  font-size: 35px;
+  margin-top: 10px;
   text-align: center;
 
   color: #fc87b1;
@@ -105,6 +109,7 @@ export const Text4 = styled.div`
   font-weight: 700;
   font-size: 30px;
   line-height: 44px;
+  margin-top: 10px;
   text-align: center;
 
   color: #42655b;
@@ -120,5 +125,5 @@ export const YearSelectorContainer = styled.div`
 
   color: #42655b;
   display: flex;
-  margin-left: 100px;
+  margin-left: 80px;
 `;

@@ -21,8 +21,8 @@ export const BadgeImage = styled.img<{ src: string }>`
   width: 150px;
 `;
 export const BadgeImageOverlay = styled.div`
-  width: 250px;
-  height: 250px;
+  width: 200px;
+  height: 200px;
   border-radius: 125px;
   background-color: #fff;
   display: flex;
@@ -45,12 +45,12 @@ export const BadgeName = styled.span`
 export const LockIcon = styled.span`
   font-size: 100px;
   position: absolute;
-  top: 50px;
+  top: 30px;
 `;
 export const LockedOverlay = styled.div`
   position: absolute;
-  width: 250px;
-  height: 250px;
+  width: 200px;
+  height: 200px;
   border-radius: 125px;
   background-color: rgba(0, 0, 0, 0.5); // 검정색 반투명 원
   display: flex;

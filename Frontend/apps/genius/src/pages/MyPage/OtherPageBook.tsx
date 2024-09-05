@@ -7,9 +7,6 @@ import {
   ProfileButton,
   NameButton,
   IDButton,
-  SocialButton,
-  SocialButtonsContainer,
-  SocialImage,
   SampleButton,
   ButtonRow,
   OvalButton,
@@ -17,8 +14,6 @@ import {
 } from "./OtherPageBook";
 import bgImage from "../../assets/images/MyPageBG.svg";
 import profileImage from "../../assets/images/OtherProfile.svg";
-import followingImage from "../../assets/images/Following.svg";
-import followerImage from "../../assets/images/Follower.svg";
 import BookTextImage from "../../assets/images/BookTitle.svg";
 import AddButtonImg1 from "../../assets/images/BookChoose1.svg";
 import AddButtonImg2 from "../../assets/images/BookChoose2.svg";
@@ -40,16 +35,6 @@ const OtherPageBook: React.FC = () => {
         <IDButton onClick={() => console.log("ID button clicked!")}>
           yunseo_o
         </IDButton>
-        <SocialButtonsContainer>
-          <SocialButton
-            onClick={() => console.log("Following button clicked!")}
-          >
-            <SocialImage src={followingImage} alt="Following" />
-          </SocialButton>
-          <SocialButton onClick={() => console.log("Follower button clicked!")}>
-            <SocialImage src={followerImage} alt="Follower" />
-          </SocialButton>
-        </SocialButtonsContainer>
         <OvalButton onClick={() => console.log("New Oval Button clicked!")}>
           팔로우
         </OvalButton>
