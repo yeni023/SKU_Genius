@@ -36,6 +36,17 @@ const Navbar: React.FC = () => {
     }
   };
 
+  const handleMyPageClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!user) {
+      event.preventDefault(); // 클릭 이벤트 기본 동작 방지
+      alert('로그인 후 이용해주세요!');
+      setTimeout(() => {
+        navigate('/Login');
+      }, 300);
+    }
+  };
+
+
   return (
     <Styles.Navbar>
       <Styles.MainMenu>
@@ -70,7 +81,7 @@ const Navbar: React.FC = () => {
           <Styles.StyledLink to="/Service">고객센터</Styles.StyledLink>
         </Styles.MenuItem>
         <Styles.MenuItem>
-          <Styles.StyledMypageLink to="/Mypage">마이페이지</Styles.StyledMypageLink>
+          <Styles.StyledMypageLink to="/Mypage" onClick={handleMyPageClick}>마이페이지</Styles.StyledMypageLink>
         </Styles.MenuItem>
       </Styles.MainMenu>
 

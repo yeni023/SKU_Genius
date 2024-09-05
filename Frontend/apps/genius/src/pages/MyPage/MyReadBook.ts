@@ -40,9 +40,11 @@ export const BookImageContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   padding-top: 10%;
+  padding-bottom: 10%;
+  position: relative;
 `;
 
 export const BookImage = styled.div`
@@ -53,7 +55,6 @@ export const BookImage = styled.div`
   position: relative;
   margin-top: -20px;
   left: -10px;
-  top: -30px;
 `;
 
 export const TextBoxContainer = styled.div`
@@ -61,15 +62,12 @@ export const TextBoxContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 100%;
-  padding-top: 10%;
+  left: 23%;
+  top: -39%;
 `;
 
 export const TextBox = styled.div`
   position: absolute;
-  top: -320%;
-  right: 8%;
   transform: translateY(-30%);
   color: black;
   font-size: 28px;
@@ -90,13 +88,12 @@ export const TextBox = styled.div`
 `;
 
 export const TextImageContainer = styled.div`
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 100%;
-  padding-top: 10%;
-  position: relative;
+  top: -39%;
+  left: 30%;
 `;
 
 export const TextImage = styled.div`
@@ -104,11 +101,11 @@ export const TextImage = styled.div`
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
-  width: 500px;
+  width: 400px;
   height: 100px;
   position: absolute;
-  top: -355px;
   left: 380px;
+  top: 10%;
 `;
 
 export const LeftButton = styled.button`
@@ -139,8 +136,7 @@ export const NextPageButton = styled.button`
   width: 40px;
   height: 90px;
   position: absolute;
-  top: calc(50% + 5px);
-  right: 60px;
+  top: 50%;
   z-index: 2;
   border: none;
   cursor: pointer;

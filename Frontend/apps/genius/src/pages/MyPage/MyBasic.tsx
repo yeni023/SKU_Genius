@@ -7,9 +7,6 @@ import {
   ProfileButton,
   NameButton,
   IDButton,
-  SocialButton,
-  SocialButtonsContainer,
-  SocialImage,
   SeedNumButtonContainer,
   SeedNumButton,
   QuestionButton,
@@ -17,8 +14,6 @@ import {
 } from "./MyBasic";
 import bgImage from "../../assets/images/MyPageBG.svg";
 import profileImage from "../../assets/images/MyProfile.svg";
-import followingImage from "../../assets/images/Following.svg";
-import followerImage from "../../assets/images/Follower.svg";
 import AnswerImage from "../../assets/images/Answer.svg";
 
 const MyBasic: React.FC = () => {

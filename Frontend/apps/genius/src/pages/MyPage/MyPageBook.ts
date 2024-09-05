@@ -67,7 +67,7 @@ export const ButtonRow = styled.div`
   left: 31%;
   right: 0%;
   background-color: transparent;
-  width: 80%;
+  width: 60%;
   padding-left: 50px;
   z-index: 3;
 `;

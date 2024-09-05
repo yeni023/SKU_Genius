@@ -145,7 +145,7 @@ export const ProfileContainer = styled.div`
   margin-left: 5px;
 
   button {
-    margin-right: 10px;
+    margin-right: 30px;
     font-size: 16px;
     color: #9D9D9D;
     border-color: #9D9D9D;
