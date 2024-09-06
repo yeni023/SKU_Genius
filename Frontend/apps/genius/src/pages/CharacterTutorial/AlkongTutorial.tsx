@@ -1,22 +1,75 @@
-// AlkongTutorial.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import * as TutorialStyle from './AlkongTutorialStyle';
 import Navbar from '../Navbar/Navbar';
 
 const AlkongTutorial: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const nextStep = () => {
     setCurrentStep(currentStep + 1);
   };
+
+  const playAudio = (audioSrc: string) => {
+    if (audioRef.current) {
+      const previousAudio = audioRef.current;
+      previousAudio.pause();
+      previousAudio.currentTime = 0;
+    }
+
+    const audio = new Audio(audioSrc);
+    audioRef.current = audio;
+    audio.play().catch((error) => {
+      console.error('Audio playback failed:', error);
+    });
+  };
+
+  const handlePlayAudio = () => {
+    switch (currentStep) {
+      case 1:
+        playAudio('src/assets/audio/AlTutorial1.mp3');
+        break;
+      case 2:
+        playAudio('src/assets/audio/AlTutorial2.mp3');
+        break;
+      case 3:
+        playAudio('src/assets/audio/AlTutorial3.mp3');
+        break;
+      case 4:
+        playAudio('src/assets/audio/AlTutorial4.mp3');
+        break;
+      case 5:
+        playAudio('src/assets/audio/AlTutorial5.mp3');
+        break;
+      case 6:
+        playAudio('src/assets/audio/AlTutorial6.mp3');
+        break;
+      case 7:
+        playAudio('src/assets/audio/AlTutorial7.mp3');
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    handlePlayAudio();
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, [currentStep]);
 
   const getStepContent = () => {
     switch (currentStep) {
       case 2:
         return (
           <>
-            동화책 제작에 앞서서 <br />먼저, 어떤 종류의 동화를 만들지 고민해봐!
+            먼저, 동화책 제작에 앞서서 <br />어떤 종류의 동화를 만들지 고민해봐!
           </>
         );
       case 3:
@@ -43,7 +96,7 @@ const AlkongTutorial: React.FC = () => {
       case 6:
         return (
           <>
-            너가 골라준 선택지를 바탕으로 <br />동화 이야기를 생성할거야!<br />
+            네가 골라준 선택지를 바탕으로 <br />동화 이야기를 생성할거야!<br />
             시간이 걸릴 수도 있으니 조금만 기다려줘!
           </>
         );
@@ -62,20 +115,18 @@ const AlkongTutorial: React.FC = () => {
         );
     }
   };
-  
 
   return (
     <TutorialStyle.TutorialContainer>
       <Navbar />
       <TutorialStyle.BackgroundImage />
       <TutorialStyle.CharacterBubble>
-        {/* Step에 따라 CharacterImage의 이미지를 바꿉니다 */}
         <TutorialStyle.CharacterImage 
           image={currentStep === 2 ? 'src/assets/images/alkong3.png' : 
                  currentStep === 7 ? 'src/assets/images/alkong2.png' : 
                  'src/assets/images/alkongcharacter.png'} 
         />
-        <TutorialStyle.StepContent key={currentStep}>{getStepContent()}</TutorialStyle.StepContent> {/* 키 추가 */}
+        <TutorialStyle.StepContent key={currentStep}>{getStepContent()}</TutorialStyle.StepContent>
         {currentStep < 7 && (
           <TutorialStyle.ButtonContainer>
             <TutorialStyle.NextButton onClick={nextStep}>다음으로</TutorialStyle.NextButton>
@@ -83,15 +134,15 @@ const AlkongTutorial: React.FC = () => {
         )}
       
       {currentStep === 7 && (
-        <Link to="/genre">
+        <Link to="/genre2">
           <TutorialStyle.ButtonContainer>
-          <TutorialStyle.EndButton>튜토리얼 마침</TutorialStyle.EndButton>
+            <TutorialStyle.EndButton>튜토리얼 마침</TutorialStyle.EndButton>
           </TutorialStyle.ButtonContainer>
         </Link>
       )}
       </TutorialStyle.CharacterBubble>
     </TutorialStyle.TutorialContainer>
-);
+  );
 };
 
 export default AlkongTutorial;
