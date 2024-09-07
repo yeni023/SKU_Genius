@@ -396,12 +396,19 @@ class IntroViewSet(viewsets.ModelViewSet):
             'user': user_id,
             'introMode': 1,
             'subject': IntroViewSet.story,
-            'IntroContent': completion.choices[0].message.content
+            'IntroContent' : completion.choices[0].message.content
         }
         intro_serializer = IntroSerializer(data=intro_data)
         if intro_serializer.is_valid():
             intro_serializer.save()
-            return Response(intro_serializer.data, status=status.HTTP_201_CREATED)
+            content = intro_serializer.data
+            intro_content = content['IntroContent']
+            split_text = intro_content.split('다음 이야기를 위한 질문:')
+            return Response({
+                    'introContent' : content,
+                    '생성된 이야기' : split_text[0].strip(),
+                    '다음 이야기를 위한 질문' : split_text[1].strip() if len(split_text) > 1 else ''
+                }, status=status.HTTP_201_CREATED)
         else:
             return Response(intro_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -472,6 +479,9 @@ class IntroViewSet(viewsets.ModelViewSet):
             ]
         )
 
+        content = completion.choices[0].message.content
+        split_text = content.split('다음 이야기를 위한 질문:')
+
         # 해당 멤버와 연관된 intro 중에서 가장 ID 값이 큰 intro를 조회
         latest_intro_id = Intro.objects.filter(user=user_id).aggregate(Max('id'))['id__max']
         latest_intro = Intro.objects.filter(id=latest_intro_id).first()
@@ -482,7 +492,9 @@ class IntroViewSet(viewsets.ModelViewSet):
             latest_intro.save()
             return Response({
                 'message': 'IntroContent updated successfully.',
-                '만들어진 이야기': completion.choices[0].message.content
+                'introContent': completion.choices[0].message.content,
+                '생성된 이야기' : split_text[0].strip(),
+                '다음 이야기를 위한 질문' : split_text[1].strip() if len(split_text) > 1 else ''
             }, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': 'No intro instance found for the member'}, status=status.HTTP_404_NOT_FOUND)
@@ -527,6 +539,9 @@ class IntroViewSet(viewsets.ModelViewSet):
             ]
         )
         
+        content = completion.choices[0].message.content
+        split_text = content.split('엔딩을 위한 질문:')
+
         # 해당 멤버와 연관된 intro 중에서 가장 ID 값이 큰 intro를 조회
         latest_intro_id = Intro.objects.filter(user=user_id).aggregate(Max('id'))['id__max']
         latest_intro = Intro.objects.filter(id=latest_intro_id).first()
@@ -537,7 +552,9 @@ class IntroViewSet(viewsets.ModelViewSet):
             latest_intro.save()
             return Response({
                 'message': 'IntroContent updated successfully.',
-                '만들어진 이야기': completion.choices[0].message.content
+                'introContent': completion.choices[0].message.content,
+                '생성된 이야기' : split_text[0].strip(),
+                '엔딩을 위한 질문' : split_text[1].strip() if len(split_text) > 1 else ''
             }, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': 'No intro instance found for the member'}, status=status.HTTP_404_NOT_FOUND)
