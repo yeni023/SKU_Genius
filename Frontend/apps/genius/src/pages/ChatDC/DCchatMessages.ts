@@ -4,11 +4,11 @@ export const initialMessages = (name: string) => [
     isUser: false
   },
   {
-    text: `앞으로 내가 이야기를 짧게 만들면 ${name}이가 뒤에 이어질 이야기를 자유롭게 보내주면 돼!`,
+    text: `앞으로 내가 이야기를 짧게 만들면 ${name}(이)가 뒤에 이어질 이야기를 자유롭게 보내주면 돼!`,
     isUser: false
   },
   {
-    text: `${name}아 동화 만들 준비가 되었니?`,
+    text: `${name}, 동화 만들 준비가 되었니?`,
     isUser: false
   }
 ];

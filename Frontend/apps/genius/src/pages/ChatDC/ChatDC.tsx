@@ -16,16 +16,41 @@ import {
 
 const ChatDC: React.FC = () => {
   const [selectedChoice, setSelectedChoice] = useState("");
-  const [messages, setMessages] = useState(initialMessages("김혜진"));
+  const [messages, setMessages] = useState(initialMessages(""));
   const [userMessage, setUserMessage] = useState("");
   const [showChat, setShowChat] = useState(false);
-  const [middleQuestionCount, setMiddleQuestionCount] = useState(0); // 중반 질문 카운터 추가
-  const [isEnding, setIsEnding] = useState(false); // 엔딩 질문 상태 추가
-  const [showNextButton, setShowNextButton] = useState(false); // 다음 버튼 상태 추가
+  const [middleQuestionCount, setMiddleQuestionCount] = useState(0);
+  const [isEnding, setIsEnding] = useState(false);
+  const [showNextButton, setShowNextButton] = useState(false);
+  const [writer, setWriter] = useState("");
+  const [nickname, setNickname] = useState(""); // 새로운 상태 추가
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const nickname = "김혜진"; // 하드코딩된 닉네임
   const currentPage = "ChatDC";
+
+  useEffect(() => {
+    const fetchWriterAndNickname = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/genius/draft/");
+        const drafts = response.data;
+        if (drafts.length > 0) {
+          const latestDraft = drafts.reduce((latest, draft) => {
+            return new Date(draft.savedAt) > new Date(latest.savedAt) ? draft : latest;
+          }, drafts[0]);
+          setWriter(latestDraft.writer);
+          setMessages(initialMessages(latestDraft.writer));
+
+          // 닉네임을 가져오기 (실제 엔드포인트로 대체)
+          const userResponse = await axios.get("http://localhost:8000/genius/members"); // 실제 엔드포인트로 대체
+          setNickname(userResponse.data.nickname);
+        }
+      } catch (error) {
+        console.error("작가와 닉네임을 가져오는 데 오류 발생:", error);
+      }
+    };
+
+    fetchWriterAndNickname();
+  }, []);
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
@@ -58,10 +83,10 @@ const ChatDC: React.FC = () => {
         { text: choice, isUser: true },
         { ...startStoryMessage }
       ]);
-      sendFirstApiRequest(nickname);
+      sendFirstApiRequest();
     } else if (choice === finalChoices[0]) {
       navigate("/MainHome");
-    } else if (choice == nextChoices[0]) {
+    } else if (choice === nextChoices[0]) {
       navigate("/DCRoading");
     }
   };
@@ -86,111 +111,124 @@ const ChatDC: React.FC = () => {
       setMessages([...messages, { text: userMessage.trim(), isUser: true }]);
       setUserMessage("");
       if (isEnding) {
-        sendBookStoryApiRequest(nickname);
+        sendBookStoryApiRequest();
       } else {
-        sendUserChatApiRequest(nickname, userMessage.trim());
+        sendUserChatApiRequest(userMessage.trim());
       }
     }
   };
 
-  const sendFirstApiRequest = async (nickname: string) => {
+  const sendFirstApiRequest = async () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/genius/intro/firstquestion/",
-        {
-          nickname
-        }
+        { writer }
       );
       const data = response.data;
+      
+      // 필요한 내용만 추출
+      const introContent = data.introContent?.IntroContent || '스토리 내용이 없습니다';
+      
+      // 메시지 상태를 업데이트
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: data.IntroContent, isUser: false }
+        { text: introContent, isUser: false }
       ]);
     } catch (error) {
-      console.error("API 요청 실패:", error);
+      console.error("첫 번째 질문 API 요청 실패:", error);
     }
   };
+  
 
-  const sendUserChatApiRequest = async (nickname: string, chat: string) => {
+  const sendUserChatApiRequest = async (chat: string) => {
     try {
       const response = await axios.post(
         "http://localhost:8000/genius/intro/userchat/",
-        {
-          nickname,
-          chat
-        }
+        { writer, chat }
       );
 
-      // 중반 질문 카운터 체크
       if (middleQuestionCount < 2) {
-        sendMiddleQuestionApiRequest(nickname);
+        sendMiddleQuestionApiRequest();
         setMiddleQuestionCount(middleQuestionCount + 1);
       } else {
-        sendEndingQuestionApiRequest(nickname);
+        sendEndingQuestionApiRequest();
       }
     } catch (error) {
-      console.error("API 요청 실패:", error);
+      console.error("사용자 채팅 API 요청 실패:", error);
     }
   };
 
-  const sendMiddleQuestionApiRequest = async (nickname: string) => {
+  const sendMiddleQuestionApiRequest = async () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/genius/intro/middlequestion/",
-        {
-          nickname
-        }
+        { writer }
       );
       const data = response.data;
+    
+      // 필요한 내용만 추출
+      const storyContent = data["생성된 이야기"] || '생성된 이야기가 없습니다';
+      const nextQuestion = data["다음 이야기를 위한 질문"] || '';
+    
+      // 메시지 상태를 업데이트
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: data["만들어진 이야기"], isUser: false }
+        { text: storyContent, isUser: false },
+        ...(nextQuestion ? [{ text: nextQuestion, isUser: false }] : []) // 다음 이야기를 위한 질문만 표시
       ]);
     } catch (error) {
-      console.error("중반 질문 API 요청 실패:", error);
+      console.error("중간 질문 API 요청 실패:", error);
     }
   };
+  
 
-  const sendEndingQuestionApiRequest = async (nickname: string) => {
+  const sendEndingQuestionApiRequest = async () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/genius/intro/endingquestion/",
-        {
-          nickname
-        }
+        { writer }
       );
       const data = response.data;
+    
+      // 필요한 내용만 추출
+      const storyContent = data["생성된 이야기"] || '생성된 이야기가 없습니다';
+      const endingQuestion = data["엔딩을 위한 질문"] || '';
+    
+      // 메시지 상태를 업데이트
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: data["만들어진 이야기"], isUser: false }
+        { text: storyContent, isUser: false },
+        ...(endingQuestion ? [{ text: endingQuestion, isUser: false }] : []) // 엔딩을 위한 질문만 표시
       ]);
-      setIsEnding(true); // 엔딩 질문 상태 활성화
+      setIsEnding(true);
     } catch (error) {
       console.error("엔딩 질문 API 요청 실패:", error);
     }
   };
+  
+  
 
-  const sendBookStoryApiRequest = async (nickname: string) => {
+  const sendBookStoryApiRequest = async () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/genius/intro/bookstory/",
-        {
-          nickname
-        }
+        { writer }
       );
       const data = response.data;
 
-      // 동화책 내용을 하나의 문자열로 결합
-      const fullStory = Object.values(data["동화이야기"]).join("\n\n");
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { text: data.message, isUser: false },
-        { text: fullStory, isUser: false }
-      ]);
-      setShowNextButton(true); // 다음 버튼 표시
+      if (data && data["동화이야기"]) {
+        const fullStory = Object.values(data["동화이야기"]).join("\n\n");
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: data.message || '스토리가 성공적으로 생성되었습니다', isUser: false },
+          { text: fullStory, isUser: false }
+        ]);
+        setShowNextButton(true);
+      } else {
+        console.error('유효하지 않은 응답 형식:', data);
+      }
     } catch (error) {
-      console.error("동화책 생성 API 요청 실패:", error);
+      console.error("동화 전체 이야기 API 요청 실패:", error);
     }
   };
 
@@ -204,7 +242,9 @@ const ChatDC: React.FC = () => {
             <Styles.MessageContainer isUser={message.isUser}>
               <Styles.UserImage isUser={message.isUser} />
               <Styles.Message isUser={message.isUser}>
-                {message.text}
+                {typeof message.text === 'object'
+                  ? JSON.stringify(message.text) // 객체는 문자열로 변환
+                  : message.text}
               </Styles.Message>
             </Styles.MessageContainer>
 
@@ -235,7 +275,7 @@ const ChatDC: React.FC = () => {
           <Styles.InputContainer>
             <Styles.Input
               type="text"
-              placeholder="달콩이에게 보낼 메시지를 입력해주세요"
+              placeholder="메시지를 입력해주세요"
               value={userMessage}
               onChange={handleChange}
               onKeyPress={handleKeyPress}

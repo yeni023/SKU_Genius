@@ -21,11 +21,13 @@ const Genre = () => {
   
   const [writerName, setWriterName] = useState<string>('');
   const [userId, setUserId] = useState<number | null>(null);
+  const [draftId, setDraftId] = useState<number | null>(null);
 
   useEffect(() => {
     // 로컬 스토리지에서 데이터 읽어오기
     const storedWriterName = localStorage.getItem('writerName');
     const storedUserId = localStorage.getItem('userId');
+    const storedDraftId = localStorage.getItem('draftId');
     
     if (storedWriterName) {
       setWriterName(storedWriterName);
@@ -33,11 +35,14 @@ const Genre = () => {
     if (storedUserId) {
       setUserId(parseInt(storedUserId, 10));
     }
+    if (storedDraftId) {
+      setDraftId(parseInt(storedDraftId, 10));
+    }
   }, []);
 
   const handleButtonClick = async (type: string) => {
-    if (writerName === '' || userId === null) {
-      console.error('작가명 또는 사용자 ID가 유효하지 않습니다.');
+    if (writerName === '' || userId === null || draftId === null) {
+      console.error('작가명, 사용자 ID 또는 드래프트 ID가 유효하지 않습니다.');
       return;
     }
 
@@ -53,7 +58,8 @@ const Genre = () => {
       };
 
       // API 요청 보내기
-      const response = await axios.post("http://localhost:8000/genius/draft/", requestData, {
+      const apiUrl = `http://localhost:8000/genius/draft/${draftId}/`; // 드래프트 ID를 포함한 URL
+      const response = await axios.patch(apiUrl, requestData, {
         headers: {
           'Content-Type': 'application/json'
         }
