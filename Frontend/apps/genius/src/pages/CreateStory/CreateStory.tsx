@@ -94,7 +94,7 @@ const CreateStory: React.FC = () => {
         hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: false,
-        onClose: () => navigate('/Tutorial')
+        onClose: () => navigate('/Tutorial')  // Tutorial 페이지로 이동
       });
     } catch (error) {
       if (axios.isAxiosError(error)) {
