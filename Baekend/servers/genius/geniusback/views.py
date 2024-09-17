@@ -596,20 +596,24 @@ class IntroViewSet(viewsets.ModelViewSet):
                 {"role": "system", "content": "You are a fairy tale writer for kids and teenager."},
                 {
                     "role": "user",
-                    "content": f"{contents}\n위의 내용을 이용해서 8페이지 분량의 동화책을 작성해줘. 그런데 위의 내용 중에서 질문과 질문에 대한 답변을 그대로 동화책에 넣지 말고 자연스러운 이야기로 바꿔줘. 그리고 페이지 별로 띄어쓰기로 구분해줘. 답변을 한글로 바꿔줘."
+                    "content": f"{contents}\n위의 내용을 이용해서 동화책을 작성해줘. 그런데 위의 내용 중에서 질문과 질문에 대한 답변을 그대로 동화책에 넣지 말고 자연스러운 이야기로 바꿔줘. 그리고 페이지 별로 띄어쓰기로 구분해줘. 답변을 한글로 바꿔줘."
+                    "답변을 줄 때, 동화책을 다 작성하고 '페이지 종료'라는 말을 붙여줘."
+                    "추가로 동화책을 작성하는 방법은 알려주지마"
                 },
             ]
         )
 
         bookstory = completion.choices[0].message.content
 
+        bookstory_split_end = bookstory.split('페이지 종료')
+
         # 줄바꿈 문자를 기준으로 내용 분리
-        bookstory_pages = bookstory.split('\n\n')
+        bookstory_pages = bookstory_split_end[0].strip().split('\n\n')
 
         # DraftPage에 내용을 저장
         for page_num, page_content in enumerate(bookstory_pages, start=1):
             DraftPage.objects.create(
-                draft=latest_draft,
+                draft=latest_draft, 
                 user=user_instance,
                 pageNum=page_num,
                 pageContent=page_content
@@ -617,7 +621,8 @@ class IntroViewSet(viewsets.ModelViewSet):
 
         return Response({
             "message": "동화 이야기가 생성되어 저장되었습니다.",
-            "동화이야기": {f"page_{i+1}": content for i, content in enumerate(bookstory_pages)}
+            "동화이야기": bookstory_pages,
+            "end_message" : '페이지 종료'
         }, status=status.HTTP_201_CREATED)
 
 
