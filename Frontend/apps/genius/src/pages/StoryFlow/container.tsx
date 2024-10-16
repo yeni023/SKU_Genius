@@ -3,13 +3,13 @@ import * as S from "./styles";
 
 import { LogoImage } from "./styles";
 import logoImage from "../../assets/images/logo.png";
-import Story1 from "../../assets/images/Story1.svg";
-import Story2 from "../../assets/images/Story2.svg";
-import Story3 from "../../assets/images/Story3.svg";
-import Story4 from "../../assets/images/Story4.svg";
-import Story5 from "../../assets/images/Story5.svg";
-import Story6 from "../../assets/images/Story6.svg";
-import Story7 from "../../assets/images/Story7.svg";
+// import Story1 from "../../assets/images/Story1.svg";
+// import Story2 from "../../assets/images/Story2.svg";
+// import Story3 from "../../assets/images/Story3.svg";
+// import Story4 from "../../assets/images/Story4.svg";
+// import Story5 from "../../assets/images/Story5.svg";
+// import Story6 from "../../assets/images/Story6.svg";
+// import Story7 from "../../assets/images/Story7.svg";
 import axios from "axios";
 
 type HeaderElementsType = {
@@ -302,63 +302,89 @@ export const Header2 = ({ currentPage }) => {
 };
 
 export const Content1 = () => {
-  const [subject, setSubject] = useState<string>('로딩 중...');
-  const [introContent, setIntroContent] = useState<string>('로딩 중...');
+  const [subject, setSubject] = useState<string>("로딩 중...");
+  const [introContent, setIntroContent] = useState<string>("로딩 중...");
   const [latestDraft, setLatestDraft] = useState<number | null>(null);
+  const [bookTitle, setBookTitle] = useState<string>("동화 제목을 생성 중입니다...");
+  const [writerName, setWriterName] = useState<string>(""); // New state for the writer's name
+  const [userId, setUserId] = useState<number | null>(null); // Optional: If needed for the API call
 
   useEffect(() => {
-    const fetchLatestDraft = async () => {
-      try {
-        // 최신 draft 번호 가져오기
-        const response = await axios.get("http://localhost:8000/genius/draft/");
-        const drafts = response.data;
-    
-        if (Array.isArray(drafts) && drafts.length > 0) {
-          console.log('응답 데이터:', drafts); // 응답 데이터 전체 출력
-          const latestDraftEntry = drafts.reduce((prev: any, current: any) => {
-            return new Date(current.savedAt) > new Date(prev.savedAt) ? current : prev;
-          });
-    
-          console.log('최신 draft 항목:', latestDraftEntry); // 최신 draft 항목 출력
-          console.log('최신 draft 번호:', latestDraftEntry.id); // draft 번호가 `id`에 저장되는지 확인
-    
-          setLatestDraft(latestDraftEntry.id); // 최신 draft 번호를 설정
-        } else {
-          console.error('응답 데이터가 배열이 아니거나 비어 있습니다.');
-        }
-      } catch (error) {
-        console.error('최신 draft 번호를 가져오는 중 오류가 발생했습니다:', error);
-      }
-    };
-    
+    // Fetch writerName, userId, and draftId from localStorage like in Genre component
+    const storedWriterName = localStorage.getItem("writerName");
+    const storedUserId = localStorage.getItem("userId");
+    const storedDraftId = localStorage.getItem("draftId");
 
-    fetchLatestDraft();
+    if (storedWriterName) {
+      setWriterName(storedWriterName);
+    }
+    if (storedUserId) {
+      setUserId(parseInt(storedUserId, 10));
+    }
+    if (storedDraftId) {
+      setLatestDraft(parseInt(storedDraftId, 10)); // Use this as the draft ID
+    }
   }, []);
 
+  useEffect(() => {
+    const fetchBookTitle = async () => {
+      if (latestDraft === null || writerName === "") return;
+  
+      try {
+        console.log("Fetching book title for draft:", latestDraft); // Debug log
+        const response = await axios.post(
+          "http://localhost:8000/genius/draftpage/bookname/",
+          {
+            writer: writerName,
+          }
+        );
+  
+        console.log("API Response:", response.data);
+  
+        // Check if the title exists and if it's an array
+        if (response.data["동화 제목"]) {
+          const titleArray = response.data["동화 제목"];
+  
+          // Ensure it's an array and set the book title to the first element of the array
+          if (Array.isArray(titleArray) && titleArray.length > 0) {
+            setBookTitle(titleArray[0]);
+          } else {
+            console.error("Unexpected title format:", response.data);
+          }
+        } else {
+          console.error("No title found in API response:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching book title:", error);
+      }
+    };
+  
+    fetchBookTitle();
+  }, [latestDraft, writerName]);
+  
   useEffect(() => {
     const fetchSubject = async () => {
       if (latestDraft === null) return;
 
       try {
-        // 최신 draft 번호를 사용하여 주제 가져오기
         const response = await axios.get(`http://localhost:8000/genius/intro/`);
-        console.log('응답 데이터:', response.data); // 콘솔 로그 추가
         const data = response.data;
 
         if (Array.isArray(data) && data.length > 0) {
-          // 최신 draft에 해당하는 항목 찾기
-          const introData = data.find((item: { draft: number }) => item.draft === latestDraft);
+          const introData = data.find(
+            (item: { draft: number }) => item.draft === latestDraft
+          );
           if (introData) {
             setSubject(introData.subject);
             setIntroContent(introData.IntroContent);
           } else {
-            console.error('해당 draft에 대한 주제를 찾을 수 없습니다.');
+            console.error("No subject found for the draft.");
           }
         } else {
-          console.error('응답 데이터가 예상과 다릅니다.');
+          console.error("Unexpected response data.");
         }
       } catch (error) {
-        console.error('주제를 가져오는 중 오류가 발생했습니다:', error);
+        console.error("Error fetching the subject:", error);
       }
     };
 
@@ -371,17 +397,16 @@ export const Content1 = () => {
         <S.Content1TitleInner>
           <h1>1. 제목</h1>
           <S.Content1InputTitle>
-            <h1 style={{ color: 'black', fontSize: '2em' }}>
-              동화 제목
-            </h1>
+            <h1 style={{ color: "black", fontSize: "2em" }}>{bookTitle}</h1>
           </S.Content1InputTitle>
         </S.Content1TitleInner>
       </S.Content1Title>
+
       <S.Content1Subject>
         <S.Content1SubjectInner>
           <h1>2. 주제</h1>
           <S.Content1InputSubject>
-            <h1 style={{ color: 'black', fontSize: '2em' }}>{subject}</h1>
+            <h1 style={{ color: "black", fontSize: "2em" }}>{subject}</h1>
           </S.Content1InputSubject>
         </S.Content1SubjectInner>
       </S.Content1Subject>
@@ -389,34 +414,51 @@ export const Content1 = () => {
   );
 };
 
-const images = [Story1, Story2, Story3, Story4, Story5, Story6, Story7];
-
 export const Content2 = () => {
-  const [draftPages, setDraftPages] = useState<{ [key: number]: { pageNum: number; pageContent: string }[] }>({});
+  const [draftPages, setDraftPages] = useState<{
+    [key: number]: { pageNum: number; pageContent: string }[];
+  }>({});
   const [latestDraft, setLatestDraft] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchDraftPages = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/genius/draftpage/");
+        const response = await axios.get(
+          "http://localhost:8000/genius/draftpage/"
+        );
         const pages = response.data;
 
-        const drafts = Array.from(new Set(pages.map((page: { draft: number }) => page.draft)));
+        const drafts = Array.from(
+          new Set(pages.map((page: { draft: number }) => page.draft))
+        );
         const recentDraft = Math.max(...(drafts as number[]));
         setLatestDraft(recentDraft);
 
-        const filteredPages = pages.filter((page: { draft: number }) => page.draft === recentDraft);
-        const groupedPages = filteredPages.reduce((acc: { [key: number]: { pageNum: number; pageContent: string }[] }, page: { pageNum: number; pageContent: string; draft: number }) => {
-          if (!acc[page.draft]) {
-            acc[page.draft] = [];
-          }
-          acc[page.draft].push({ pageNum: page.pageNum, pageContent: page.pageContent });
-          return acc;
-        }, {});
-        
+        const filteredPages = pages.filter(
+          (page: { draft: number }) => page.draft === recentDraft
+        );
+        const groupedPages = filteredPages.reduce(
+          (
+            acc: { [key: number]: { pageNum: number; pageContent: string }[] },
+            page: { pageNum: number; pageContent: string; draft: number }
+          ) => {
+            if (!acc[page.draft]) {
+              acc[page.draft] = [];
+            }
+            acc[page.draft].push({
+              pageNum: page.pageNum,
+              pageContent: page.pageContent
+            });
+            return acc;
+          },
+          {}
+        );
         setDraftPages(groupedPages);
       } catch (error) {
-        console.error("이야기 데이터를 불러오는 중 오류가 발생했습니다.", error);
+        console.error(
+          "이야기 데이터를 불러오는 중 오류가 발생했습니다.",
+          error
+        );
       }
     };
 
@@ -431,7 +473,6 @@ export const Content2 = () => {
     <S.Content2>
       {draftPages[latestDraft]?.map((page, index) => (
         <S.Content2Element key={page.pageNum}>
-          <S.FixedImage src={images[index % images.length]} alt={`Story ${index + 1}`} />
           <S.Content2ElementInner>
             <p>{page.pageContent || "이야기 내용이 없습니다."}</p>
           </S.Content2ElementInner>
