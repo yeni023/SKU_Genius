@@ -40,21 +40,18 @@ export const BookImageContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 100vh;
-  padding-top: 10%;
-  padding-bottom: 10%;
   position: relative;
+  width: 100%;
+  height: 100%;
+  padding-top: 5%;
 `;
 
 export const BookImage = styled.div`
   background-image: url(${DalkongBook});
   background-position: center;
-  width: 1250px;
+  width: 1300px;
   height: 700px;
   position: relative;
-  margin-top: -20px;
-  left: -10px;
 `;
 
 export const TextBoxContainer = styled.div`
@@ -62,38 +59,43 @@ export const TextBoxContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  left: 23%;
-  top: -39%;
+  width: 100%;
+  height: 100%;
+  padding-top: 10%;
 `;
 
 export const TextBox = styled.div`
   position: absolute;
-  transform: translateY(-30%);
-  color: black;
-  font-size: 28px;
-  font-weight: bold;
-  line-height: 2;
-  text-align: center;
+  top: -250%; 
+  right: 7%; 
+  transform: translateY(-50%);
   background-color: white;
   border: 3px solid #aa528e;
   padding: 30px;
   width: 450px;
   height: 500px;
   z-index: 10;
-
+  
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+
+  color: black;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 2;
+  text-align: center;
 `;
 
 export const TextImageContainer = styled.div`
-  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  top: -39%;
-  left: 30%;
+  width: 100%;
+  height: 100%;
+  padding-top: 15%;
+  position: relative;
 `;
 
 export const TextImage = styled.div`
@@ -101,11 +103,12 @@ export const TextImage = styled.div`
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
-  width: 400px;
+  width: 500px;
   height: 100px;
   position: absolute;
-  left: 380px;
-  top: 10%;
+  top: -6%;  // 조금 아래로 내림
+  left: 7%;  // 오른쪽으로 조금 이동
+  transform: translateY(-50%);
 `;
 
 export const LeftButton = styled.button`
@@ -114,10 +117,10 @@ export const LeftButton = styled.button`
   width: 570px;
   height: 565px;
   border: 3px solid #aa528e;
-  border-radius: 0;
   position: absolute;
-  top: 355px;
-  left: calc(50% - 595px);
+  top: 55%; 
+  left: calc(50% - 600px); 
+  transform: translateY(-50%);
   z-index: 1;
 
   &:focus {
@@ -126,7 +129,7 @@ export const LeftButton = styled.button`
   }
 
   &:hover {
-    border-color: #aa528e; /* Remove this line to keep the border color consistent */
+    border-color: #aa528e;
   }
 `;
 
@@ -136,7 +139,9 @@ export const NextPageButton = styled.button`
   width: 40px;
   height: 90px;
   position: absolute;
-  top: 50%;
+  top: 60%;  // 아래로 조금 더 내림
+  right: calc(50% - 640px);  // 오른쪽으로 더 이동
+  transform: translateY(-50%);
   z-index: 2;
   border: none;
   cursor: pointer;
