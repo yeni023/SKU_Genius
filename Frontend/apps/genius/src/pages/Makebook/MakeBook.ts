@@ -9,7 +9,6 @@ import MakeBookBG from "../../assets/images/MakeBookBG.svg";
 import MakeBookImg from "../../assets/images/MakeBookImg.svg";
 import MakeBookBtn1 from "../../assets/images/MakeBookBtn1.svg";
 import MakeBookBtn2 from "../../assets/images/MakeBookBtn2.svg";
-import BookCover from "../../assets/images/BookCover.jpg";
 import BookReIcon from "../../assets/images/BookRe.svg";
 
 export const Container = styled.div`
@@ -114,19 +113,17 @@ export const ImageButton = styled.div`
   }
 `;
 
-export const NewImage = styled.div`
+// 이미지 들어가는 거기
+export const NewImage = styled.div<{ imageUrl: string }>`
   position: absolute;
   bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
   padding: 10px 20px;
   color: white;
-  background-image: url(${BookCover});
+  background-image: url(${(props) => props.imageUrl});
   background-size: cover;
   background-position: center;
-  background-color: rgba(255, 255, 255, 0.34);
-  background-position: center;
-  background-repeat: no-repeat;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -341,4 +338,12 @@ export const ArrowButton = styled.button`
     outline: none;
     border: none;
   }
+`;
+
+export const SpinnerContainer = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
 `;
