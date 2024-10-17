@@ -1,4 +1,11 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { createGlobalStyle, keyframes } from 'styled-components';
+
+// 구글 폰트를 전역 스타일로 설정
+const GlobalStyle = createGlobalStyle`
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');  body {
+  font-family: "Jua", sans-serif;
+  }
+`;
 
 const fadeIn = keyframes`
   from {
@@ -129,34 +136,68 @@ export const Section = styled.div`
 
   img {
     max-width: 50%;
-    margin: 10px;
+    margin: 15px;
+    filter: drop-shadow(3px 3px 3px #000);
     
   }
 
   p {
-    font-size: 1.7em; /* 아이들에게 읽기 좋게 조정 */
-    color: #000; /* 텍스트가 잘 보이도록 다크 그레이 색상 */
-    text-align: center;
-    line-height: 2.0;
-    padding: 30px 35px; /* 여백을 적당히 줄여서 더 세련되게 */
-    margin: 0;
-    background: rgba(255, 255, 255, 0.77); /* 밝은 배경으로 텍스트 강조 */
-    border-radius: 100px; /* 둥근 모서리로 부드러운 느낌 */
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* 부드러운 그림자 효과 */
-    max-width: 90%; /* 텍스트 영역의 너비 제한 */
-    margin: 0 auto; /* 중앙 정렬 */
-    display: inline-block; /* 인라인 블록으로 중앙 정렬 유지 */
+    font-family: "Jua", sans-serif;
     font-weight: 400;
     font-style: normal;
-  }
+    font-size: 1.7em; 
+    color: #333333;
+    text-align: center;
+    line-height: 2.0;
+    padding: 65px; 
+    margin: 20px auto;
+    background: rgb(237,246,237);
+    border-radius: 50%; 
+    position: relative;
+    display: inline-block;
+    box-shadow: 10px 10px 0px 0px rgba(0, 0, 0, 0.4);
+}
+
+p:after { 
+    border-top: 20px solid rgb(237,246,237);
+    border-left: 20px solid transparent; 
+    border-right: 20px solid transparent; 
+    border-bottom: 0px solid transparent; 
+    content: ""; 
+    position: absolute; 
+    top: 99%; 
+    left: 50%; 
+    transform: translateX(-50%); 
+}
+
+
+
 
   .highlight {
-    color: #f1c40f; /* 밝고 활기찬 노란색 */
+    color: #87cefa; 
     font-weight: bold;
   }
 
   .highlight2 {
-    color: #e74c3c; /* 따뜻한 빨간색으로 강조 */
+    color: #20b2aa; 
     font-weight: bold;
   }
+
+  .highlight3 {
+    color: #fa8072; 
+    font-weight: bold;
+  }
+
+  .highlight4 {
+    color: #9acd32; 
+    font-weight: bold;
+  }
+
+  .highlight5 {
+    color: #87ceeb; 
+    font-weight: bold;
+  }
+
 `;
+
+export { GlobalStyle };
