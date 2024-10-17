@@ -88,8 +88,8 @@ const LockIcon = styled.span`
 `;
 const LockedOverlay = styled.div`
   position: absolute;
-  width: 200px;
-  height: 200px;
+  width: 250px;
+  height: 250px;
   border-radius: 125px;
   background-color: rgba(0, 0, 0, 0.5); // 검정색 반투명 원
   display: flex;
@@ -97,7 +97,7 @@ const LockedOverlay = styled.div`
   justify-content: center;
   font-size: 100px;
   color: white;
-  margin-top: -196px;
+  margin-top: -198px;
 `;
 const BadgeModal: React.FC<BadgeModalProps> = ({
   badgeName,

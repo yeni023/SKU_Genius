@@ -22,6 +22,7 @@ import Tutorial from "./pages/Tutorial/Tutorial.tsx";
 import DalkongTutorial from "./pages/CharacterTutorial/DalkongTutorial.tsx";
 import AlkongTutorial from "./pages/CharacterTutorial/AlkongTutorial.tsx";
 import Navbar from "./pages/Navbar/Navbar.tsx";
+import Navbar2 from "./pages/Navbar/Navbar2.tsx";
 import MyBasic from "./pages/MyPage/MyBasic.tsx";
 import OtherBasic from "./pages/MyPage/OtherBasic.tsx";
 import OtherPage from "./pages/MyPage/OtherPage.tsx";
@@ -48,8 +49,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MainHome />} />
-        <Route path="/Genre" element={<Genre />} />
+        <Route path="/" element={<Genre />} />
         <Route path="/Genre2" element={<Genre2 />} />
         <Route path="/StoryFlow" element={<StoryFlow />} />
         <Route path="/StoryFlow2" element={<StoryFlow2 />} />
@@ -70,6 +70,7 @@ const App = () => {
         <Route path="/AlkongTutorial" element={<AlkongTutorial />} />
         <Route path="/DalkongTutorial" element={<DalkongTutorial />} />
         <Route path="/Navbar" element={<Navbar />} />
+        <Route path="/Navbar2" element={<Navbar2 />} />
         <Route path="/SignUp" element={<SignUp />} />
         <Route path="/MyBasic" element={<MyBasic />} />
         <Route path="/OTherBasic" element={<OtherBasic />} />

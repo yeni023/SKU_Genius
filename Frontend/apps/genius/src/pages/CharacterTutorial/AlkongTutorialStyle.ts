@@ -27,7 +27,7 @@ export const BackgroundImage = styled.div`
 
 export const CharacterBubble = styled.div`
   position: absolute;
-  top: 68%;
+  top: 66%;
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 20px;
@@ -38,18 +38,16 @@ export const CharacterBubble = styled.div`
   align-items: center;
 `;
 
-export const CharacterImage = styled.div<{ image: string }>`
-  background: url(${props => props.image}) no-repeat center center;
+export const CharacterImage = styled.div`
+  background: url('src/assets/images/alkongcharacter.png') no-repeat center center;
   background-size: contain;
   width: 400px;
   height: 400px;
-  margin-top: 95px;
-  margin-bottom: 5px;
-  margin-left: -5px;
+  margin-top: 75px;
+  margin-bottom: 10px;
   align-items: center;
-  animation: ${fadeIn} 0.8s ease-in-out;
+  animation: ${fadeIn} 0.5s ease-in-out;
 `;
-
 
 export const StepContent = styled.div`
   white-space: pre-line;
@@ -58,18 +56,15 @@ export const StepContent = styled.div`
   border-radius: 100%;
   position: absolute;
   left: 50%;
-  top: 100px;
-  font-size: 22px;
+  top: 80px;
+  font-size: 21px;
   color: #000;
   transform: translate(-50%, -90%);
-  width: 90%;
+  width: 100%;
   border: 2px solid lightseagreen;
   text-align: center;
-  animation: ${fadeIn} 0.4s ease-in-out;
+  animation: ${fadeIn} 1.0s ease-in-out;
   line-height: 1.8;
-  font-family: "Gowun Dodum", sans-serif;
-  font-weight: 400;
-  font-style: normal;
 `;
 
 export const ButtonContainer = styled.div` /* 새로운 컨테이너 스타일 추가 */
@@ -86,8 +81,7 @@ export const NextButton = styled.button`
   font-weight: bold;
   border-radius: 10px;
   cursor: pointer;
-  margin-top: -30px;
-  margin-left: 5px;
+  margin-top: -15px;
   border: 2px solid lightblue;
 
   &:hover {
@@ -108,7 +102,7 @@ export const EndButton = styled.button`
   font-weight: bold;
   border-radius: 10px;
   cursor: pointer;
-  margin-top: -30px;
+  margin-top: -15px;
   border: 2px solid #7EC7B1;
 
   &:hover {

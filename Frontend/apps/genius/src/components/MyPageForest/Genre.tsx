@@ -45,7 +45,7 @@ const GenreImage = styled.img`
 const GenreText = styled.span`
   font-weight: 400;
   color: #000;
-  font-size: 36px;
+  font-size: 38px;
   font-family: "Arial", sans-serif;
   letter-spacing: 0.5px;
   margin: 10px 0;

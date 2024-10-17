@@ -14,7 +14,7 @@ export const MyPagePlantContainer = styled.div`
   width: 60vw;
 `;
 export const Title = styled.div`
-  width: 60vw;
+  width: 70vw;
 
   background: rgba(255, 255, 255, 0.62);
 
@@ -39,9 +39,8 @@ export const OneBadgeTitle = styled.div`
   font-family: "Inter";
   font-style: normal;
   font-weight: 600;
-  font-size: 43px;
-  margin-top: 60px;
-  line-height: 60px;
+  font-size: 48px;
+  line-height: 58px;
 
   color: #42655b;
 `;
@@ -51,8 +50,8 @@ export const BadgeImage = styled.img`
   border-radius: 125px;
 `;
 export const NonBadge = styled.div`
-  width: 200px;
-  height: 200px;
+  width: 250px;
+  height: 250px;
   border-radius: 125px;
 
   background-color: #e6e6e6;
@@ -64,6 +63,6 @@ export const NonBadgeName = styled.span`
   font-family: "Inter";
   font-style: normal;
   font-weight: 600;
-  font-size: 100px;
+  font-size: 200px;
   color: #6e6e6e;
 `;
