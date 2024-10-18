@@ -1,285 +1,349 @@
-import * as C from "../StoryFlow/container";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import {
-  Container,
-  BookImage,
-  BookImageContainer,
-  TextBox,
-  TextBoxContainer,
-  ImageButton,
-  ImageTextBox,
-  TextImageContainer,
-  TextImage,
-  CustomButton,
-  CustomButton2,
-  ButtonWrapper,
-  FullscreenImage,
-  MakeBookImage,
-  OverlayButtonWrapper,
-  OverlayButton1,
-  OverlayButton2,
-  NewImage,
-  BottomRightButton,
-  ArrowButton,
-  Arrow_Image,
-  SpinnerContainer
-} from "./MakeBook";
-import right from "../../assets/images/right.svg";
-import left from "../../assets/images/left.svg";
-import spinner from "../../assets/images/Spinner_MakeBook.gif"; // 스피너 이미지
+import { styled } from "styled-components";
+import DalkongBG from "../../assets/images/DalkongBG.svg";
+import DalkongBook from "../../assets/images/DalkongBook.svg";
+import photo from "../../assets/images/MakeBookPhoto.svg";
+import TextPhoto from "../../assets/images/TextImage.svg";
+import SaveIcon from "../../assets/images/Save.svg";
+import ContinueIcon from "../../assets/images/Continue.svg";
+import MakeBookBG from "../../assets/images/MakeBookBG.svg";
+import MakeBookImg from "../../assets/images/MakeBookImg.svg";
+import MakeBookBtn1 from "../../assets/images/MakeBookBtn1.svg";
+import MakeBookBtn2 from "../../assets/images/MakeBookBtn2.svg";
+import BookReIcon from "../../assets/images/BookRe.svg";
 
-const MakeBook = () => {
-  const currentPage = "MakeBook";
-  const [showFullscreenImage, setShowFullscreenImage] = useState(false);
-  const [showImageButton, setShowImageButton] = useState(true);
-  const [showNewImage, setShowNewImage] = useState(false);
-  const [pageCount, setPageCount] = useState(1);
-  const [draftPages, setDraftPages] = useState<{
-    [key: number]: { id: number; pageNum: number; pageContent: string }[];
-  }>({});
-  const [latestDraft, setLatestDraft] = useState<number | null>(null);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
-    null
-  ); // 생성된 이미지 URL
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
-  const [showOverlayContent, setShowOverlayContent] = useState(true); // Overlay 컨텐츠 보이기/숨기기 상태
-  const navigate = useNavigate();
+export const Container = styled.div`
+  position: relative;
+  background-image: url(${DalkongBG});
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  min-height: 100vh;
+`;
 
-  // 드래프트 페이지 불러오기
-  useEffect(() => {
-    const fetchDraftPages = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/genius/draftpage/"
-        );
-        const pages = response.data;
+export const BookImageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding-top: 10%;
+`;
 
-        // 최신 드래프트 찾기
-        const drafts = Array.from(
-          new Set(pages.map((page: { draft: number }) => page.draft))
-        );
-        const recentDraft = Math.max(...(drafts as number[]));
-        setLatestDraft(recentDraft);
+export const BookImage = styled.div`
+  background-image: url(${DalkongBook});
+  background-position: center;
+  width: 1300px;
+  height: 700px;
+  position: relative;
+`;
 
-        // 최신 드래프트 페이지 필터링
-        const filteredPages = pages.filter(
-          (page: { draft: number }) => page.draft === recentDraft
-        );
-        const groupedPages = filteredPages.reduce(
-          (
-            acc: {
-              [key: number]: {
-                id: number;
-                pageNum: number;
-                pageContent: string;
-              }[];
-            },
-            page: {
-              id: number;
-              pageNum: number;
-              pageContent: string;
-              draft: number;
-            }
-          ) => {
-            if (!acc[page.draft]) {
-              acc[page.draft] = [];
-            }
-            acc[page.draft].push({
-              id: page.id, // DraftPage의 id값
-              pageNum: page.pageNum,
-              pageContent: page.pageContent
-            });
-            return acc;
-          },
-          {}
-        );
+export const TextBoxContainer = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding-top: 10%;
+`;
 
-        setDraftPages(groupedPages);
-      } catch (error) {
-        console.error(
-          "이야기 데이터를 불러오는 중 오류가 발생했습니다.",
-          error
-        );
-      }
-    };
+export const TextBox = styled.div`
+  position: absolute;
+  top: -240%;
+  right: 19%;
+  transform: translateY(-30%);
+  color: black;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 2;
+  text-align: center;
+  background-color: white;
+  border: 3px solid #aa528e;
+  padding: 30px;
+  width: 450px;
+  height: 500px;
+  z-index: 10;
 
-    fetchDraftPages();
-  }, []);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+`;
 
-  // 이미지 생성 API 호출
-  const handleGenerateImage = async (draftPageId: number) => {
-    setIsLoading(true); // 로딩 시작
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/genius/draftpage/create_content_image/",
-        {
-          page_id: draftPageId
-        }
-      );
-      const imageUrl = response.data.image_url;
-      console.log("Generated Image URL:", imageUrl);
-      setGeneratedImageUrl(imageUrl);
-      setShowNewImage(true);
-      setShowFullscreenImage(false);
-    } catch (error) {
-      console.error("An error occurred while creating the image:", error);
-    } finally {
-      setIsLoading(false); // 로딩 완료
-    }
-  };
+export const ImageTextBox = styled.div`
+  position: absolute;
+  bottom: 600px;
+  left: 620px;
+  transform: translateX(-48%);
+  padding: 10px 20px;
+  background-color: white;
+  border: 3px solid #aa528e;
+  padding: 30px;
+  width: 500px;
+  height: 340px;
+  z-index: 10;
+`;
 
-  // 페이지의 마지막 pageNum 찾기
-  const getMaxPageNum = () => {
-    if (latestDraft && draftPages[latestDraft]) {
-      return Math.max(...draftPages[latestDraft].map((page) => page.pageNum));
-    }
-    return 0;
-  };
+export const ImageButton = styled.div`
+  position: absolute;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  color: white;
+  background-image: url(${photo});
+  background-size: 200px, 150px;
+  background-position: center;
+  background-color: rgba(255, 255, 255, 0.34);
+  background-position: center;
+  background-repeat: no-repeat;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 450px;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 
-  // 다음 페이지 버튼
-  const handleNextPage = () => {
-    const maxPageNum = getMaxPageNum();
-    if (pageCount === maxPageNum - 1) {
-      alert("이미지를 선택할 수 있는 마지막 페이지입니다!");
-    }
-    if (pageCount < maxPageNum) {
-      setPageCount((prevCount) => prevCount + 1);
-      setShowNewImage(false);
-      setShowOverlayContent(true); // 다음 페이지로 이동 시 Overlay 요소 다시 보이기
-    } else if (pageCount === maxPageNum) {
-      navigate("/LastPage2");
-    }
-  };
-
-  // 이전 페이지 버튼
-  const handlePreviousPage = () => {
-    if (pageCount > 1) {
-      setPageCount((prevCount) => prevCount - 1);
-      setShowOverlayContent(true); // 이전 페이지로 이동 시 Overlay 요소 다시 보이기
-    }
-  };
-
-  // 이미지 버튼 클릭 시 전체 화면 이미지 보이기
-  const handleImageButtonClick = () => {
-    setShowFullscreenImage(true);
-  };
-
-  // 전체 화면에서 나가기 버튼
-  const handleOverlayButton1Click = () => {
-    setShowFullscreenImage(false);
-  };
-
-  // 이미지 생성 버튼 클릭
-  const handleOverlayButton2Click = () => {
-    if (latestDraft && draftPages[latestDraft]) {
-      const currentPageData = draftPages[latestDraft].find(
-        (page) => page.pageNum === pageCount
-      );
-      console.log("Current Page Data:", currentPageData); // 현재 페이지 데이터 출력
-      if (currentPageData) {
-        handleGenerateImage(currentPageData.id); // DraftPage의 id값으로 이미지 생성 API 호출
-        setShowOverlayContent(false); // OverlayButton2 클릭 시 Overlay 요소를 숨김
-      }
-    }
-  };
-
-  // BottomRightButton 클릭 시 처리 로직
-  const handleBottomRightButtonClick = async () => {
-    if (generatedImageUrl) {
-      // 생성된 이미지가 있을 경우 이미지를 삭제하고 새로 생성
-      setGeneratedImageUrl(null);
-      setShowNewImage(false);
-      setIsLoading(true); // 새로운 이미지 생성 시 로딩
-      if (latestDraft && draftPages[latestDraft]) {
-        const currentPageData = draftPages[latestDraft].find(
-          (page) => page.pageNum === pageCount
-        );
-        if (currentPageData) {
-          await handleGenerateImage(currentPageData.id); // 이미지 다시 생성
-        }
-      }
-    } else {
-      // 생성된 이미지가 없을 경우 알림 팝업 표시
-      alert("생성한 이미지가 없습니다. 버튼을 클릭하여 이미지를 생성해주세요.");
-    }
-  };
-
-  useEffect(() => {
-    if (showFullscreenImage) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [showFullscreenImage]);
-
-  if (latestDraft === null) {
-    return <p>로딩 중...</p>;
+  &:hover {
+    background-color: #f1a3d7;
   }
+`;
 
-  return (
-    <Container>
-      <C.Header currentPage={currentPage} />
-      {showFullscreenImage && !showNewImage && (
-        <>
-          <FullscreenImage />
-          {showOverlayContent && (
-            <>
-              <MakeBookImage />
-              <OverlayButtonWrapper>
-                <OverlayButton1 onClick={handleOverlayButton1Click} />
-                <OverlayButton2 onClick={handleOverlayButton2Click} />
-              </OverlayButtonWrapper>
-            </>
-          )}
-        </>
-      )}
-      <BookImageContainer>
-        <BookImage onClick={handleImageButtonClick} />
-        {pageCount > 1 && (
-          <ArrowButton
-            onClick={handlePreviousPage}
-            style={{ left: "150px", right: "auto" }}
-          >
-            <Arrow_Image src={left} alt="left" />
-          </ArrowButton>
-        )}
-        <ArrowButton onClick={handleNextPage}>
-          <Arrow_Image src={right} alt="right" />
-        </ArrowButton>
-      </BookImageContainer>
-      <TextBoxContainer>
-        <TextBox>
-          {draftPages[latestDraft]?.find((page) => page.pageNum === pageCount)
-            ?.pageContent || "내용이 없습니다."}
-        </TextBox>
-      </TextBoxContainer>
-      <ImageTextBox>
-        {isLoading ? (
-          // 로딩 중일 때 중앙에 스피너 표시
-          <SpinnerContainer>
-            <img src={spinner} alt="로딩 중..." />
-          </SpinnerContainer>
-        ) : showNewImage && generatedImageUrl ? (
-          <NewImage imageUrl={generatedImageUrl} />
-        ) : (
-          <ImageButton onClick={handleImageButtonClick}></ImageButton>
-        )}
-      </ImageTextBox>
-      <TextImageContainer>
-        <TextImage onClick={() => console.log("TextImage clicked")} />
-      </TextImageContainer>
-      <ButtonWrapper>
-        <CustomButton onClick={() => console.log("Custom button clicked")} />
-        <CustomButton2 onClick={() => console.log("Custom button 2 clicked")} />
-      </ButtonWrapper>
-      <BottomRightButton onClick={handleBottomRightButtonClick} />
-    </Container>
-  );
-};
+// 이미지 들어가는 거기
+export const NewImage = styled.div<{ imageUrl: string }>`
+  position: absolute;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  color: white;
+  background-image: url(${(props) => props.imageUrl});
+  background-size: cover;
+  background-position: center;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 450px;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 
-export default MakeBook;
+  &:hover {
+    background-color: #a2b2dc;
+  }
+`;
+
+export const TextImageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding-top: 10%;
+  position: relative;
+`;
+
+export const TextImage = styled.div`
+  background-image: url(${TextPhoto});
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 500px;
+  height: 100px;
+  position: absolute;
+  top: -355px;
+  left: 380px;
+`;
+
+export const CustomButton = styled.button`
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  z-index: 100;
+  padding: 70px;
+  background-color: transparent;
+  background-image: url(${SaveIcon});
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+  &:focus {
+    outline: none;
+    border: none;
+  }
+`;
+
+export const CustomButton2 = styled.button`
+  position: fixed;
+  top: 20px;
+  right: 190px;
+  z-index: 100;
+  padding: 70px;
+  background-color: transparent;
+  background-image: url(${ContinueIcon});
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+  &:focus {
+    outline: none;
+    border: none;
+  }
+`;
+
+export const ButtonWrapper = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: row;
+`;
+
+export const FullscreenImage = styled.div`
+  position: fixed;
+  top: 90px;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 90px);
+  background-image: url(${MakeBookBG});
+  background-size: cover;
+  background-position: center;
+  z-index: 200;
+`;
+
+export const MakeBookImage = styled.div`
+  position: fixed;
+  top: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50vw;
+  height: 50vh;
+  background-image: url(${MakeBookImg});
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 300;
+`;
+
+export const OverlayButtonWrapper = styled.div`
+  position: fixed;
+  top: 300px;
+  left: 45%;
+  transform: translateX(-50%);
+  z-index: 400;
+  display: flex;
+  flex-direction: row;
+`;
+
+export const OverlayButton1 = styled.button`
+  position: fixed;
+  top: 250px;
+  left: calc(50% - 10px);
+  transform: translateX(-50%);
+  width: 180px;
+  height: 60px;
+  background-image: url(${MakeBookBtn1});
+  background-size: contain;
+  background-color: #d9d9d9;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  cursor: pointer;
+  z-index: 400;
+
+  &:focus {
+    outline: none;
+    border: none;
+  }
+`;
+
+export const OverlayButton2 = styled.button`
+  position: fixed;
+  top: 250px;
+  left: calc(50% + 200px);
+  transform: translateX(-50%);
+  width: 180px;
+  height: 60px;
+  background-image: url(${MakeBookBtn2});
+  background-size: contain;
+  background-color: #d9d9d9;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  cursor: pointer;
+  z-index: 400;
+
+  &:focus {
+    outline: none;
+    border: none;
+  }
+`;
+
+export const BottomRightButton = styled.button`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 500;
+  width: 100px;
+  height: 100px;
+  padding: 20px;
+  background-color: transparent;
+  background-image: url(${BookReIcon});
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+  &:focus {
+    outline: none;
+    border: none;
+  }
+`;
+
+export const Arrow_Image = styled.img`
+  height: 150px;
+  padding-top: 40px;
+  object-fit: cover;
+`;
+
+export const ArrowButton = styled.button`
+  position: absolute;
+  right: 150px;
+  top: 58%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border: none;
+  }
+`;
+
+export const SpinnerContainer = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+`;
