@@ -87,9 +87,10 @@ class PurchaseSeeds(APIView):
     def post(self, request: Request, *args, **kwargs):
         if not isinstance(request.data, dict):
             return Response({"error": "No data received"}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = request.user
+        nickname = request.data.get('nickname')
         seeds_for_purchase = request.data.get("seeds_for_purchase", 0)
+
+        member = get_object_or_404(Members, nickname=nickname)
         try:
             seeds_for_purchase = int(seeds_for_purchase)
         except ValueError:
@@ -98,17 +99,18 @@ class PurchaseSeeds(APIView):
         if seeds_for_purchase < 0:
             return Response({"error": "씨앗의 값이 0보다 작습니다."}, status=400)
 
-        user.seedCnt += int(seeds_for_purchase)
-        user.save()
-        return Response({"message": "씨앗 구매 성공!", "씨앗 개수": user.seedCnt})
+        member.seedCnt += int(seeds_for_purchase)
+        member.save()
+        return Response({"message": "씨앗 구매 성공!", "씨앗 개수": member.seedCnt})
 
 
 
 # counting amount of seeds
 class GetSeedsCount(APIView):
     def get(self, request: Request, *args, **kwargs):
-        user = request.user
-        return Response({"씨앗 개수": user.seedCnt})
+        nickname = request.data.get('nickname')
+        member = get_object_or_404(Members, nickname=nickname)
+        return Response({"씨앗 개수": member.seedCnt})
 
 
 class BooksViewSet(viewsets.ModelViewSet):
@@ -117,9 +119,11 @@ class BooksViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def generate_books(self, request):
-        title = request.data.get('title')
+        nickname = request.data.get('nickname')
         image_url = request.data.get('image_url')
-
+        member = get_object_or_404(Members, nickname=nickname)
+        intro = Intro.objects.filter(user=member).order_by('-id').first()
+        title = intro.subject
         new_book = Books(bookName=title, coverImg=image_url)
         new_book.save()
 
@@ -135,14 +139,22 @@ class MyLibraryViewSet(viewsets.ModelViewSet):
     queryset = MyLibrary.objects.all()
     serializer_class = MyLibrarySerializer
 
-    class Book_Search_ViewSet(APIView):
-        def get(self, member_id):
-            try:
-                books = Books.objects.filter(mylibrary__user_id=member_id)
-                serializer = BooksSerializer(books, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            except Members.DoesNotExist:
-                return Response({'error': 'Member not found'}, status=status.HTTP_404_NOT_FOUND)
+    @action(detail=False, methods=['get'])
+    def book_search(self, request):
+        nickname = request.data.get('nickname')
+        member = get_object_or_404(Members, nickname=nickname)
+        books = Books.objects.filter(mylibrary__user_id=member.id)
+        try:
+            book_list = []
+            for book in books:
+                book_list.append({
+                    'bookName': book.bookName,
+                    'createDate': book.bCreateDate,
+                    'coverImg': book.coverImg,
+                })
+            return Response(book_list, status=status.HTTP_200_OK)
+        except Members.DoesNotExist:
+            return Response({'error': 'Member not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class DraftViewSet(viewsets.ModelViewSet):
     queryset = Draft.objects.all()
