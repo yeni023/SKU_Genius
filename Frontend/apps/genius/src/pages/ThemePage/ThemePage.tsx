@@ -6,19 +6,24 @@ import Shape from "../../components/ThemePage/Shape";
 import * as Styles from "./ThemePageStyle";
 import Regenerate from "../../assets/images/regenerate.png";
 import { themes, Theme } from "./themes";
+import axios from "axios";
 
-interface ThemePageProps {
+interface ThemeData {
   id: string;
+  title: string;
+  subjectImage: string;
 }
 
-const ThemePage: React.FC<ThemePageProps> = () => {
-  const [selectedTheme, setSelectedTheme] = useState<Theme[]>([]);
+const ThemePage: React.FC = () => {
+  const [selectedTheme, setSelectedTheme] = useState<ThemeData[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
   const currentPage = "ThemePage";
 
   useEffect(() => {
     const themeId = location.search.split("=")[1];
+    const nickname = localStorage.getItem('nickname');
+    const genre = localStorage.getItem('genre');
     if (themeId) {
       const currentTheme = themes.find((theme) => theme.id === themeId);
       if (currentTheme) {
@@ -37,12 +42,43 @@ const ThemePage: React.FC<ThemePageProps> = () => {
         setSelectedTheme(relatedThemes);
       }
     } else {
-      setSelectedTheme(themes.slice(0, 3));
+      const requestData = {nickname, genre};
+      axios
+        .post(`http://localhost:8000/genius/intro/generate_subject/`, requestData, 
+        {
+          headers: {
+            'Content-Type': "application/json"
+          }
+        })
+        .then((response) => {
+          console.log("API Response: ", response.data);  // 응답 로깅
+
+          const subjectsData = response.data.map(
+            (item: any, index: number): ThemeData => {
+              return {
+                id: index.toString(),
+                title: item.name,
+                subjectImage: item.image_url
+              };
+            }
+          );
+          setSelectedTheme(subjectsData);
+          console.log("response", response);
+          subjectsData.forEach((subject: any) => {
+            console.log('Title:', subject.title);
+            console.log('Subject Image:', subject.subjectImage);
+            console.log('id', subject.id);
+          });
+        })
+        .catch((error) => {
+          console.error("Failed to fetch themes:", error);
+        });
     }
   }, [location]);
 
-  const handleImageContainerClick = (themeId: string) => {
-    navigate(`/ThemePageNext?id=${themeId}`);
+  const handleImageContainerClick = (theme: ThemeData) => {
+    const titles= selectedTheme.map((t)=>t.title);
+    navigate(`/ThemePageNext?id=${theme.id}`, {state:{titles}});
   };
 
   const handleRefreshClick = () => {
@@ -66,7 +102,7 @@ const ThemePage: React.FC<ThemePageProps> = () => {
             key={theme.id}
             title={theme.title}
             subjectImage={theme.subjectImage}
-            onImageContainerClick={() => handleImageContainerClick(theme.id)}
+            onImageContainerClick={() => handleImageContainerClick(theme)}
             delay={(index + 1) * 1000}
           />
         ))}
