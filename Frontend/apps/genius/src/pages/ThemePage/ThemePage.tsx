@@ -53,14 +53,12 @@ const ThemePage: React.FC = () => {
         .then((response) => {
           console.log("API Response: ", response.data);  // 응답 로깅
 
-          const subjectsData = response.data.map(
-            (item: any, index: number): ThemeData => {
-              return {
+          const subjectsData = response.data.topics.map(
+            (topic, index) => ({
                 id: index.toString(),
-                title: item.name,
-                subjectImage: item.image_url
-              };
-            }
+                title: topic.replace(/^\d+\.\s+/, ''),
+                subjectImage: response.data.images[index]
+            })
           );
           setSelectedTheme(subjectsData);
           console.log("response", response);

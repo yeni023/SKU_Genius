@@ -270,6 +270,7 @@ class DraftViewSet(viewsets.ModelViewSet):
 class IntroViewSet(viewsets.ModelViewSet):
     queryset = Intro.objects.all()
     serializer_class = IntroSerializer
+    """
     @action(detail=False, methods=['post'])
     def generate_subject(self, request):
         nickname = request.data.get('nickname')
@@ -292,10 +293,11 @@ class IntroViewSet(viewsets.ModelViewSet):
             return Response(result, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    """
 
 
-    """@action(detail=False, methods=['post'])
-    def generate_subject_imshi(self, request):
+    @action(detail=False, methods=['post'])
+    def generate_subject(self, request):
         nickname = request.data.get('nickname')
         genre = request.data.get('genre')
         # 닉네임으로 멤버 조회
@@ -303,7 +305,7 @@ class IntroViewSet(viewsets.ModelViewSet):
 
         if not genre:
             return Response({'error': 'Genre is required'}, status=status.HTTP_400_BAD_REQUEST)
-        subject_prompt = f"장르 {genre}에 기반한 독특한 이야기 주제를 10글자 이내로 3개씩 생성해."
+        subject_prompt = f"장르 {genre}에 기반한 독특한 이야기 주제를 3개씩 생성해. 이때 주제는 무조건 한글로 10자를 넘지 않아야 해."
         new_draft = Draft.objects.create(user=member)
         try:
             responses = generate(subject_prompt)
@@ -320,37 +322,6 @@ class IntroViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-"""
-
-    @action(detail=False, methods=['post'])
-    def create_intro_content(self, request):
-        nickname = request.data.get('nickname')
-        selected_subject = request.data.get('selected_subject')
-
-        member = get_object_or_404(Members, nickname=nickname)
-        draft = Draft.objects.filter(user=member).order_by('-savedAt').first()
-        if not draft:
-            return Response({"error": "Draft is required"}, status=status.HTTP_404_NOT_FOUND)
-
-        diff = draft.diff
-        name_prompt = f"주제 {selected_subject}를 기반해서 주인공의 이름 {diff}개만 생성해."
-
-        try:
-            response = generate(name_prompt)
-            if isinstance(response, str):
-                protagonist_names = response.split('\n')
-            else:
-                return Response({'error': 'Invalid response format'},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        intro = Intro(draft=draft, user_id=member.id, introMode=0,
-                    subject=selected_subject)
-        intro.save()
-        return Response({'intro_id': intro.id, 'subject': selected_subject,
-                        'intro_content': protagonist_names, 'draft_id': draft.id})
 
     @action(detail=False, methods=['post'])
     def recreate_intro_content(self, request):
