@@ -122,10 +122,6 @@ const Service = () => {
     <>
       <Navbar />
       <ServiceStyle.Container>
-        <ServiceStyle.SearchForm>
-          <input type="text" placeholder="질문을 검색해보세요" />
-          <button type="submit">검색</button>
-        </ServiceStyle.SearchForm>
         <ServiceStyle.ButtonGroup>
           <button onClick={handleInquiryClick}>1:1 문의 접수</button>
           <button onClick={handleInquiryHistoryClick}>나의 문의 내역</button>

@@ -12,42 +12,9 @@ export const Container = styled.div`
   align-items: center;
 `;
 
-export const SearchForm = styled.form`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 120px;
-  margin-bottom: 40px;
-
-  input {
-    padding: 16px 250px;
-    margin-right: 20px;
-    font-size: 23px;
-    border-radius: 5px;
-    border: 1px solid #d9d9d9;
-    padding-left: 20px;
-
-    &:focus {
-      outline: 0;
-    }
-  }
-
-  button {
-    padding: 15px 30px;
-    background-color: #007bff;
-    color: #fff;
-    cursor: pointer;
-    font-size: 20px;
-
-    &:focus {
-      border: 1px solid #fff;
-      outline: 0;
-    }
-  }
-`;
-
 export const ButtonGroup = styled.div`
   margin-bottom: 20px;
+  margin-top: 130px;
   display: flex;
   left: 30%;
 
