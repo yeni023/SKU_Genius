@@ -22,7 +22,7 @@ const ThemePage: React.FC = () => {
 
   useEffect(() => {
     const themeId = location.search.split("=")[1];
-    const nickname = localStorage.getItem('nickname');
+    const writer = localStorage.getItem('writer');
     const genre = localStorage.getItem('genre');
     if (themeId) {
       const currentTheme = themes.find((theme) => theme.id === themeId);
@@ -42,7 +42,7 @@ const ThemePage: React.FC = () => {
         setSelectedTheme(relatedThemes);
       }
     } else {
-      const requestData = {nickname, genre};
+      const requestData = {writer, genre};
       axios
         .post(`http://localhost:8000/genius/intro/generate_subject/`, requestData, 
         {
