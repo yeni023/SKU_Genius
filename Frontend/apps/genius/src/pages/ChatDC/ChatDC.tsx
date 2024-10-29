@@ -112,6 +112,7 @@ const ChatDC: React.FC = () => {
       setUserMessage("");
       if (isEnding) {
         sendBookStoryApiRequest();
+        sendUserEndingChatApiRequest(userMessage.trim());
       } else {
         sendUserChatApiRequest(userMessage.trim());
       }
@@ -127,12 +128,14 @@ const ChatDC: React.FC = () => {
       const data = response.data;
       
       // 필요한 내용만 추출
-      const introContent = data.introContent?.IntroContent || '스토리 내용이 없습니다';
+      const introContent = data["생성된 이야기"] || '생성된 이야기가 없습니다';
+      const nextQuestion = data["다음 이야기를 위한 질문"] || '';
       
       // 메시지 상태를 업데이트
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: introContent, isUser: false }
+        { text: introContent, isUser: false },
+        ...(nextQuestion ? [{ text: nextQuestion, isUser: false }] : []) // 다음 이야기를 위한 질문만 표시
       ]);
     } catch (error) {
       console.error("첫 번째 질문 API 요청 실패:", error);
@@ -147,7 +150,7 @@ const ChatDC: React.FC = () => {
         { writer, chat }
       );
 
-      if (middleQuestionCount < 2) {
+      if (middleQuestionCount < 4) {
         sendMiddleQuestionApiRequest();
         setMiddleQuestionCount(middleQuestionCount + 1);
       } else {
@@ -203,6 +206,17 @@ const ChatDC: React.FC = () => {
       setIsEnding(true);
     } catch (error) {
       console.error("엔딩 질문 API 요청 실패:", error);
+    }
+  };
+
+  const sendUserEndingChatApiRequest = async (chat: string) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/genius/intro/userchat/",
+        { writer, chat }
+      );
+    } catch (error) {
+      console.error("사용자 채팅 API 요청 실패:", error);
     }
   };
   
