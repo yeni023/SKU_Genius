@@ -33,7 +33,7 @@ const Genre2 = () => {
     } catch (error) {
       console.error("Error submitting genre:", error);
     } finally {
-      navigate("/ThemePage");
+      navigate("/ThemePage", {state:{genre:type}});
     }
   };
 

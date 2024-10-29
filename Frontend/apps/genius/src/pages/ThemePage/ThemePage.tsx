@@ -1,4 +1,3 @@
-// ThemePage.tsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import * as C from "../../pages/StoryFlow/container";
@@ -19,11 +18,32 @@ const ThemePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPage = "ThemePage";
+  const [writer, setWriter] = useState("");
+  const genre = location.state;
+
+  useEffect(() => {
+    const fetchWriterAndNickname = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/genius/draft/");
+        const drafts = response.data;
+        if (drafts.length > 0) {
+          const latestDraft = drafts.reduce((latest, draft) => {
+            return new Date(draft.savedAt) > new Date(latest.savedAt)
+              ? draft
+              : latest;
+          }, drafts[0]);
+          setWriter(latestDraft.writer);
+        }
+      } catch (error) {
+        console.error("작가를 가져오는 데 오류 발생:", error);
+      }
+    };
+
+    fetchWriterAndNickname();
+  }, []);
 
   useEffect(() => {
     const themeId = location.search.split("=")[1];
-    const writer = localStorage.getItem('writer');
-    const genre = localStorage.getItem('genre');
     if (themeId) {
       const currentTheme = themes.find((theme) => theme.id === themeId);
       if (currentTheme) {
@@ -42,41 +62,44 @@ const ThemePage: React.FC = () => {
         setSelectedTheme(relatedThemes);
       }
     } else {
-      const requestData = {writer, genre};
-      axios
-        .post(`http://localhost:8000/genius/intro/generate_subject/`, requestData, 
-        {
-          headers: {
-            'Content-Type': "application/json"
-          }
-        })
-        .then((response) => {
-          console.log("API Response: ", response.data);  // 응답 로깅
+      if (writer) {
+        const requestData = { writer, genre };
+        axios
+          .post(
+            `http://localhost:8000/genius/intro/generate_subject/`,
+            requestData,
+            {
+              headers: {
+                "Content-Type": "application/json"
+              }
+            }
+          )
+          .then((response) => {
+            console.log("API Response: ", response.data); // 응답 로깅
 
-          const subjectsData = response.data.topics.map(
-            (topic, index) => ({
-                id: index.toString(),
-                title: topic.replace(/^\d+\.\s+/, ''),
-                subjectImage: response.data.images[index]
-            })
-          );
-          setSelectedTheme(subjectsData);
-          console.log("response", response);
-          subjectsData.forEach((subject: any) => {
-            console.log('Title:', subject.title);
-            console.log('Subject Image:', subject.subjectImage);
-            console.log('id', subject.id);
+            const subjectsData = response.data.topics.map((topic, index) => ({
+              id: index.toString(),
+              title: topic.replace(/^\d+\.\s+/, ""),
+              subjectImage: response.data.images[index]
+            }));
+            setSelectedTheme(subjectsData);
+            console.log("response", response);
+            subjectsData.forEach((subject: any) => {
+              console.log("Title:", subject.title);
+              console.log("Subject Image:", subject.subjectImage);
+              console.log("id", subject.id);
+            });
+          })
+          .catch((error) => {
+            console.error("Failed to fetch themes:", error);
           });
-        })
-        .catch((error) => {
-          console.error("Failed to fetch themes:", error);
-        });
+      }
     }
-  }, [location]);
+  }, [writer, location]);
 
   const handleImageContainerClick = (theme: ThemeData) => {
-    const titles= selectedTheme.map((t)=>t.title);
-    navigate(`/ThemePageNext?id=${theme.id}`, {state:{titles}});
+    const titles = selectedTheme.map((t) => t.title);
+    navigate(`/ThemePageNext?id=${theme.id}`, { state: { titles } });
   };
 
   const handleRefreshClick = () => {
