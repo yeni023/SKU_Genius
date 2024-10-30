@@ -42,7 +42,7 @@ const Genre = () => {
 
   const handleButtonClick = async (type: string) => {
     if (writerName === '' || userId === null || draftId === null) {
-      console.error('작가명, 사용자 ID 또는 드래프트 ID가 유효하지 않습니다.');
+      console.error("작가명, 사용자 ID 또는 드래프트 ID가 유효하지 않습니다.");
       return;
     }
 
