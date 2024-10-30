@@ -1,12 +1,10 @@
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import * as C from "../../pages/StoryFlow/container";
-import { useNavigate } from "react-router-dom";
 import {
   Container,
   BookImageContainer,
   BookImage,
-  UpperTextBox,
-  TextBox,
-  SmallTextBox,
   Button1,
   Button2,
   BarcodeImage,
@@ -17,12 +15,10 @@ import {
 } from "./LastPage2";
 
 const LastPage2 = () => {
+  const { state } = useLocation(); // 전달받은 상태를 가져옴
+  const { imageUrl } = state || {}; // 상태에서 이미지 URL만 추출
   const currentPage = "LastPage2";
   const navigate = useNavigate();
-
-  const handleButtonClick = (buttonType: string) => {
-    console.log(`${buttonType} button clicked`);
-  };
 
   const handleExitButtonClick = () => {
     navigate("/MainHome");
@@ -33,21 +29,12 @@ const LastPage2 = () => {
       <C.Header currentPage={currentPage} />
       <BookImageContainer>
         <LastPageACImage />
-        <BookImage />
-        <UpperTextBox>
-          24.05.19
-        </UpperTextBox>
-        <TextBox>
-          인어공주의 대탐험
-        </TextBox>
-        <SmallTextBox>
-          지은이 | 박예은
-        </SmallTextBox>
-        <Button1 onClick={() => handleButtonClick("MainButton")} />
-        <Button2 onClick={() => handleButtonClick("SecondaryButton")} />
+        {imageUrl && <BookImage src={imageUrl} alt="Generated Story" />} {/* 생성된 이미지 표시 */}
+        <Button1 onClick={() => console.log("MainButton clicked")} />
+        <Button2 onClick={() => console.log("SecondaryButton clicked")} />
         <BarcodeImage />
         <ButtonWrapper>
-          <NewButton1 onClick={() => handleButtonClick("BaroButton")} />
+          <NewButton1 onClick={() => console.log("BaroButton clicked")} />
           <NewButton2 onClick={handleExitButtonClick} />
         </ButtonWrapper>
       </BookImageContainer>
