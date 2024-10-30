@@ -821,7 +821,7 @@ class DraftPageViewSet(viewsets.ModelViewSet):
                                                 pageNum=total_pages)
 
             return Response({
-                'next_question': first_question,
+                'question': first_question,
                 'answers': semi_final_answer,
                 'page_num': total_pages,
                 'page_id': new_page.id
@@ -873,7 +873,7 @@ class DraftPageViewSet(viewsets.ModelViewSet):
                                                 pageNum=total_pages)
 
             return Response({
-                'final_question': final_question,
+                'question': final_question,
                 'answers': final_answer,
                 'page_num': total_pages,
                 'page_id': new_page.id
@@ -911,7 +911,7 @@ class DraftPageViewSet(viewsets.ModelViewSet):
                                                 pageNum=total_pages)
 
             return Response({
-                'final_question': final_question,
+                'question': final_question,
                 'answers': final_answer,
                 'page_num': total_pages,
                 'page_id': new_page.id
