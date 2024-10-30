@@ -36,131 +36,133 @@ const MakeBook = () => {
   const [showImageButton, setShowImageButton] = useState(true);
   const [showNewImage, setShowNewImage] = useState(false);
   const [pageCount, setPageCount] = useState(1);
-  const [draftPages, setDraftPages] = useState<{
-    [key: number]: { id: number; pageNum: number; pageContent: string }[];
-  }>({});
+  const [draftPages, setDraftPages] = useState({});
   const [latestDraft, setLatestDraft] = useState<number | null>(null);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
-    null
-  ); // 생성된 이미지 URL
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
-  const [showOverlayContent, setShowOverlayContent] = useState(true); // Overlay 컨텐츠 보이기/숨기기 상태
+  const [pageImages, setPageImages] = useState({}); // 각 페이지의 이미지 URL 저장
+  const [isLoading, setIsLoading] = useState(false);
+  const [showOverlayContent, setShowOverlayContent] = useState(true);
   const navigate = useNavigate();
+  const [writer, setWriter] = useState(""); // writer 상태 추가
+  const [nickname, setNickname] = useState(""); // nickname 상태 추가
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null); // 생성된 이미지 URL 상태 추가
 
   // 드래프트 페이지 불러오기
   useEffect(() => {
     const fetchDraftPages = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8000/genius/draftpage/"
-        );
+        const response = await axios.get("http://localhost:8000/genius/draftpage/");
         const pages = response.data;
 
         // 최신 드래프트 찾기
-        const drafts = Array.from(
-          new Set(pages.map((page: { draft: number }) => page.draft))
-        );
-        const recentDraft = Math.max(...(drafts as number[]));
+        const drafts = Array.from(new Set(pages.map((page) => page.draft)));
+        const recentDraft = Math.max(...drafts as number[]);
         setLatestDraft(recentDraft);
 
-        // 최신 드래프트 페이지 필터링
-        const filteredPages = pages.filter(
-          (page: { draft: number }) => page.draft === recentDraft
-        );
-        const groupedPages = filteredPages.reduce(
-          (
-            acc: {
-              [key: number]: {
-                id: number;
-                pageNum: number;
-                pageContent: string;
-              }[];
-            },
-            page: {
-              id: number;
-              pageNum: number;
-              pageContent: string;
-              draft: number;
-            }
-          ) => {
-            if (!acc[page.draft]) {
-              acc[page.draft] = [];
-            }
+        // 최신 드래프트 페이지 필터링 및 그룹화
+        const groupedPages = pages
+          .filter(page => page.draft === recentDraft)
+          .reduce((acc, page) => {
+            acc[page.draft] = acc[page.draft] || [];
             acc[page.draft].push({
-              id: page.id, // DraftPage의 id값
+              id: page.id,
               pageNum: page.pageNum,
               pageContent: page.pageContent
             });
             return acc;
-          },
-          {}
-        );
+          }, {});
 
         setDraftPages(groupedPages);
       } catch (error) {
-        console.error(
-          "이야기 데이터를 불러오는 중 오류가 발생했습니다.",
-          error
-        );
+        console.error("이야기 데이터를 불러오는 중 오류가 발생했습니다.", error);
       }
     };
 
     fetchDraftPages();
   }, []);
 
-  // 이미지 생성 API 호출
-  const handleGenerateImage = async (draftPageId: number) => {
-    setIsLoading(true); // 로딩 시작
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/genius/draftpage/create_content_image/",
-        {
-          page_id: draftPageId
+   // 작가와 닉네임을 가져오는 useEffect
+   useEffect(() => {
+    const fetchWriterAndNickname = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/genius/draft/");
+        const drafts = response.data;
+        if (drafts.length > 0) {
+          const latestDraft = drafts.reduce((latest, draft) => {
+            return new Date(draft.savedAt) > new Date(latest.savedAt) ? draft : latest;
+          }, drafts[0]);
+          setWriter(latestDraft.writer);
+
+          // 닉네임을 가져오기
+          const userResponse = await axios.get("http://localhost:8000/genius/members"); // 실제 엔드포인트로 대체
+          setNickname(userResponse.data.nickname);
         }
-      );
-      const imageUrl = response.data.image_url;
-      console.log("Generated Image URL:", imageUrl);
-      setGeneratedImageUrl(imageUrl);
-      setShowNewImage(true);
-      setShowFullscreenImage(false);
-    } catch (error) {
-      console.error("An error occurred while creating the image:", error);
-    } finally {
-      setIsLoading(false); // 로딩 완료
-    }
-  };
+      } catch (error) {
+        console.error("작가와 닉네임을 가져오는 데 오류 발생:", error);
+      }
+    };
 
-  // 페이지의 마지막 pageNum 찾기
-  const getMaxPageNum = () => {
-    if (latestDraft && draftPages[latestDraft]) {
-      return Math.max(...draftPages[latestDraft].map((page) => page.pageNum));
-    }
-    return 0;
-  };
+    fetchWriterAndNickname();
+  }, []);
 
-  // 다음 페이지 버튼
-  const handleNextPage = () => {
-    const maxPageNum = getMaxPageNum();
-    if (pageCount === maxPageNum - 1) {
-      alert("이미지를 선택할 수 있는 마지막 페이지입니다!");
-    }
-    if (pageCount < maxPageNum) {
-      setPageCount((prevCount) => prevCount + 1);
-      setShowNewImage(false);
-      setShowOverlayContent(true); // 다음 페이지로 이동 시 Overlay 요소 다시 보이기
-    } else if (pageCount === maxPageNum) {
-      navigate("/LastPage2");
-    }
-  };
+// 이미지 생성 API 호출
+const handleGenerateImage = async (draftPageId: number, pageNum: number) => {
+  setIsLoading(true);
+  try {
+    const response = await axios.post("http://localhost:8000/genius/draftpage/create_content_image/", {
+      page_num: pageNum,
+      writer: writer // writer를 여기서 사용
+    });
+
+    const imageUrl = response.data.image_url;
+
+    // 페이지별 이미지 URL 저장
+    setPageImages(prevImages => ({
+      ...prevImages,
+      [pageNum]: imageUrl // 현재 페이지 번호를 키로 사용하여 저장
+    }));
+
+    setGeneratedImageUrl(imageUrl); // 생성된 이미지 URL 상태에 저장
+    setShowNewImage(true);
+    setShowFullscreenImage(false);
+  } catch (error) {
+    console.error("이미지 생성 중 오류가 발생했습니다:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+// 페이지의 마지막 pageNum 찾기
+const getMaxPageNum = () => {
+  return latestDraft && draftPages[latestDraft]
+    ? Math.max(...draftPages[latestDraft].map(page => page.pageNum))
+    : 0;
+};
+
+// 다음 페이지 버튼
+const handleNextPage = () => {
+  const maxPageNum = getMaxPageNum();
+  if (pageCount < maxPageNum) {
+    setPageCount(prevCount => prevCount + 1);
+    setShowNewImage(false);
+    setShowOverlayContent(true);
+    setGeneratedImageUrl(pageImages[pageCount + 1]); // 다음 페이지의 이미지를 보여주기 위해 URL 업데이트
+  } else if (pageCount === maxPageNum) {
+    navigate("/LastPage2");
+  } else {
+    alert("이미지를 선택할 수 있는 마지막 페이지입니다!");
+  }
+};
 
   // 이전 페이지 버튼
   const handlePreviousPage = () => {
-    if (pageCount > 1) {
-      setPageCount((prevCount) => prevCount - 1);
-      setShowOverlayContent(true); // 이전 페이지로 이동 시 Overlay 요소 다시 보이기
+    if (pageCount > 0) {
+      setPageCount(prevCount => prevCount - 1);
+      setGeneratedImageUrl(pageImages[pageCount - 1]); // 이전 페이지의 이미지를 보여주기 위해 URL 업데이트
+    } else {
+      alert("첫 번째 페이지입니다!");
     }
   };
-
   // 이미지 버튼 클릭 시 전체 화면 이미지 보이기
   const handleImageButtonClick = () => {
     setShowFullscreenImage(true);
@@ -174,13 +176,11 @@ const MakeBook = () => {
   // 이미지 생성 버튼 클릭
   const handleOverlayButton2Click = () => {
     if (latestDraft && draftPages[latestDraft]) {
-      const currentPageData = draftPages[latestDraft].find(
-        (page) => page.pageNum === pageCount
-      );
-      console.log("Current Page Data:", currentPageData); // 현재 페이지 데이터 출력
+      const currentPageData = draftPages[latestDraft].find(page => page.pageNum === pageCount);
+      console.log("Current Page Data:", currentPageData);
       if (currentPageData) {
-        handleGenerateImage(currentPageData.id); // DraftPage의 id값으로 이미지 생성 API 호출
-        setShowOverlayContent(false); // OverlayButton2 클릭 시 Overlay 요소를 숨김
+        handleGenerateImage(currentPageData.id, pageCount); // writer 변수 제거
+        setShowOverlayContent(false);
       }
     }
   };
@@ -188,30 +188,25 @@ const MakeBook = () => {
   // BottomRightButton 클릭 시 처리 로직
   const handleBottomRightButtonClick = async () => {
     if (generatedImageUrl) {
-      // 생성된 이미지가 있을 경우 이미지를 삭제하고 새로 생성
       setGeneratedImageUrl(null);
       setShowNewImage(false);
-      setIsLoading(true); // 새로운 이미지 생성 시 로딩
+      setIsLoading(true);
+  
       if (latestDraft && draftPages[latestDraft]) {
-        const currentPageData = draftPages[latestDraft].find(
-          (page) => page.pageNum === pageCount
-        );
+        const currentPageData = draftPages[latestDraft].find(page => page.pageNum === pageCount);
         if (currentPageData) {
-          await handleGenerateImage(currentPageData.id); // 이미지 다시 생성
+          await handleGenerateImage(currentPageData.id, pageCount); // 이미지 다시 생성
         }
       }
     } else {
-      // 생성된 이미지가 없을 경우 알림 팝업 표시
       alert("생성한 이미지가 없습니다. 버튼을 클릭하여 이미지를 생성해주세요.");
     }
   };
+  
 
+  // 전체 화면에서 스크롤 잠금 관리
   useEffect(() => {
-    if (showFullscreenImage) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow = showFullscreenImage ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -241,10 +236,7 @@ const MakeBook = () => {
       <BookImageContainer>
         <BookImage onClick={handleImageButtonClick} />
         {pageCount > 1 && (
-          <ArrowButton
-            onClick={handlePreviousPage}
-            style={{ left: "150px", right: "auto" }}
-          >
+          <ArrowButton onClick={handlePreviousPage} style={{ left: "150px", right: "auto" }}>
             <Arrow_Image src={left} alt="left" />
           </ArrowButton>
         )}
@@ -254,22 +246,26 @@ const MakeBook = () => {
       </BookImageContainer>
       <TextBoxContainer>
         <TextBox>
-          {draftPages[latestDraft]?.find((page) => page.pageNum === pageCount)
-            ?.pageContent || "내용이 없습니다."}
+          {draftPages[latestDraft]?.find(page => page.pageNum === pageCount)?.pageContent || "내용이 없습니다."}
         </TextBox>
       </TextBoxContainer>
-      <ImageTextBox>
-        {isLoading ? (
-          // 로딩 중일 때 중앙에 스피너 표시
-          <SpinnerContainer>
-            <img src={spinner} alt="로딩 중..." />
-          </SpinnerContainer>
-        ) : showNewImage && generatedImageUrl ? (
-          <NewImage imageUrl={generatedImageUrl} />
-        ) : (
-          <ImageButton onClick={handleImageButtonClick}></ImageButton>
-        )}
-      </ImageTextBox>
+      // 이미지 URL을 렌더링하는 부분 수정
+<ImageTextBox>
+  {isLoading ? (
+    <SpinnerContainer>
+      <img src={spinner} alt="로딩 중..." />
+    </SpinnerContainer>
+  ) : showNewImage && generatedImageUrl ? (
+    <NewImage imageUrl={generatedImageUrl} />
+  ) : (
+    // 페이지별 이미지 렌더링
+    pageImages[pageCount] ? (
+      <NewImage imageUrl={pageImages[pageCount]} /> // 저장된 페이지별 이미지 보여주기
+    ) : (
+      <ImageButton onClick={handleImageButtonClick} />
+    )
+  )}
+</ImageTextBox>
       <TextImageContainer>
         <TextImage onClick={() => console.log("TextImage clicked")} />
       </TextImageContainer>

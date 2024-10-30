@@ -24,7 +24,7 @@ export const BookImageContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  padding-top: 8%;
+  padding-top: 45%;
   position: relative;
 `;
 
