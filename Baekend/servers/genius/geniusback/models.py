@@ -18,12 +18,9 @@ class Members(models.Model):
 class Books(models.Model):
     bookName = models.CharField(max_length=50)
     bCreateDate = models.DateTimeField(auto_now_add=True)
-    coverImg = models.URLField(max_length=512)
-
-
-    #줄거리내용추가필요? 시놉시스 char?
-    #evalStart = models.IntegerField(default=0)
-    #lastPage = models.IntegerField()
+    coverImg = models.URLField(max_length=512, null=True)
+    bookShortStory = models.CharField(max_length=512, null=True)
+    draft = models.IntegerField(default=0)
 
     class Meta:
         db_table = "book"
