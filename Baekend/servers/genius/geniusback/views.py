@@ -381,7 +381,7 @@ class IntroViewSet(viewsets.ModelViewSet):
                         'intro_content': protagonist_names})
 
     @action(detail=False, methods=['post'])
-    def save_intro_contents(self, request):
+    def save_intro_content(self, request):
         writer = request.data.get('writer')
         selected_content = request.data.get('selected_content')
 
