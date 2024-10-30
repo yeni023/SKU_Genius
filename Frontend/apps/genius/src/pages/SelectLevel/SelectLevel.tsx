@@ -1,5 +1,5 @@
 import * as C from "../../pages/StoryFlow/container";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
@@ -26,43 +26,67 @@ const SelectLevel = () => {
   const currentPage = "SelectLevel";
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Retrieve the genre from the passed state
-  const genre = location.state?.genre || "default_genre"; // Fallback if genre isn't passed
-  
+
   const [showConfirm, setShowConfirm] = useState(false);
   const [title, setTitle] = useState("선택지 개수는 몇 개로 할까?");
   const [selectedButton, setSelectedButton] = useState<Difficulty | null>(null);
+  const [writer, setWriter] = useState(""); // writer 상태 추가
+
+  // writer 정보를 받아오는 useEffect
+  useEffect(() => {
+    const fetchWriter = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/genius/draft/");
+        const drafts = response.data;
+        if (drafts.length > 0) {
+          const latestDraft = drafts.reduce((latest, draft) => {
+            return new Date(draft.savedAt) > new Date(latest.savedAt) ? draft : latest;
+          }, drafts[0]);
+          setWriter(latestDraft.writer);
+        }
+      } catch (error) {
+        console.error("작가 정보를 불러오는 중 오류가 발생했습니다:", error);
+      }
+    };
+
+    fetchWriter();
+  }, []);
 
   const handleImageClick = (type: Difficulty) => {
-    console.log(`Selected difficulty: ${type}`);
     setSelectedButton(type);
     setShowConfirm(true);
     setTitle("좋아, 다음 단계로 넘어갈까?");
   };
 
   const handleYesClick = async () => {
-    if (selectedButton) {
+    if (selectedButton && writer) {
       try {
         const diffMap: { [key in Difficulty]: number } = {
-          easy: 1,
-          medium: 2,
-          hard: 3
+          easy: 2,
+          medium: 3,
+          hard: 4
         };
 
-        const response = await axios.post(`/draft/1/choose_diff/`, {
-          diff: diffMap[selectedButton],
-          writer: "yeeun",
-          genre: genre, // Use the selected genre
-          user: 1
-        });
+        const payload = {
+          writer: writer,
+          diff_Count: diffMap[selectedButton] // 선택된 난이도를 diff_Count로 매핑
+        };
 
-        console.log("API Response:", response.data);
+        console.log("Payload being sent:", payload);
+
+        const response = await axios.post(
+          "http://localhost:8000/genius/draft/choose_diff/",
+          payload
+        );
+
+        console.log("난이도가 잘 전송되었습니다:", response.data);
       } catch (error) {
-        console.error("Error submitting difficulty:", error);
+        console.error("난이도 전송에 실패했습니다:", error);
       } finally {
         navigate("/ChatAC");
       }
+    } else {
+      console.log("선택된 난이도 또는 writer 정보가 없습니다.");
     }
   };
 
