@@ -1041,8 +1041,15 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         }
         book_serializer = BooksSerializer(data=book_data)
         if book_serializer.is_valid():
-            book_serializer.save()
-            return Response({"message" : "동화 제목이 생성되었습니다.", "동화 제목":{completion.choices[0].message.content}}, status=status.HTTP_201_CREATED)
+            book_instance = book_serializer.save() 
+            my_library_data = {
+            'book': book_instance.id,
+            'user': user_id
+            }
+            my_library_serializer = MyLibrarySerializer(data=my_library_data)
+            if my_library_serializer.is_valid():
+                my_library_serializer.save()
+            return Response({"message" : "동화 제목이 생성되었습니다.", "동화 제목":{completion.choices[0].message.content}, "message2":"동화책 객체가 생성되었습니다.", "message3":"myLibrary 객체가 생성되었습니다."}, status=status.HTTP_201_CREATED)
         else:
             return Response(book_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
