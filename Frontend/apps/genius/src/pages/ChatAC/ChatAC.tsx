@@ -148,7 +148,7 @@ const ChatAC: React.FC = () => {
       }
     } catch (error) {
       // make_draft_page 또는 finish_draft_page API 호출 오류 시 콘솔
-      console.error("다음 질문을 가져오는 중 오류가 발생했습니다:", error);
+      console.error("다음 질문을 가져오는 중 오류가 발생했습니다.:", error);
     }
   };
 
