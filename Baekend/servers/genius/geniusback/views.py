@@ -329,7 +329,8 @@ class IntroViewSet(viewsets.ModelViewSet):
             return Response({"error": "Draft is required"}, status=status.HTTP_404_NOT_FOUND)
 
         diff = draft.diff
-        name_prompt = f"주제 {selected_subject}를 기반해서 주인공의 이름 {diff}개만 생성해."
+        name_prompt = f"주제 {selected_subject}를 기반해서 주인공의 이름 {diff}개만 생성해.
+        답변은 주인공의 이름만을 출력해야 하며, 각 이름은 한 문장으로 짧게 표현하고, 전체 답변은 정확히 {diff}개의 문장으로 구성되어야 해."
 
         try:
             response = generate(name_prompt)
@@ -744,7 +745,8 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         if total_pages == 1:
             alpha_question_prompt = (f"이야기의 주제인 {selected_subject}와 "
                                      f"이야기의 주인공 이름 {intro_content}을 보고, "
-                                     f"주인공에 대한 성격 {diff}개를 단답형으로 생성해.")
+                                     f"주인공에 대한 성격 {diff}개를 단답형으로 생성해."
+                                     f"각 성격은 정확히 {diff}개 문장으로 구성되어야 해.")
             try:
                 response = generate(alpha_question_prompt)
                 if isinstance(response, str):
