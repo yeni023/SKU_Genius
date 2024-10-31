@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./StoryFlow2";
-import * as C from "../../pages/StoryFlow/container";
+import * as C from "./container2";
 
 const StoryFlow2 = () => {
   const navigate = useNavigate();
