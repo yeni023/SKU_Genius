@@ -33,7 +33,6 @@ const ChatAC: React.FC = () => {
   const [questionCount, setQuestionCount] = useState<number>(0); // 질문 카운트
   const [writer, setWriter] = useState<string>(""); // writer 상태 관리
   const currentPage = "ChatAC"; // currentPage를 정의합니다.
-
   useEffect(() => {
     const fetchWriter = async () => {
       try {
