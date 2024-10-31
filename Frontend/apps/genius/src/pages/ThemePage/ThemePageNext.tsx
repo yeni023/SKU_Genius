@@ -1,3 +1,4 @@
+//ThemePageNext.tsx
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ShapeNext from "../../components/ThemePage/ShapeNext";
