@@ -80,12 +80,14 @@ const ChatAC: React.FC = () => {
   }, [messages]);
 
   const fetchIntroChoices = async (writer: string) => {
+    console.log("선택된 주제: ", selectedSubject); // 선택된 주제를 콘솔에 출력
+
     try {
       const response = await axios.post<APIResponse>(
         "http://localhost:8000/genius/intro/create_intro_content/",
         {
           writer: writer,
-          selected_subject: selectedSubject
+          selected_subject: selectedSubject // 선택된 주제 사용
         }
       );
       console.log("주인공의 이름 생성 API 성공: ", response.data); // 성공 로그
