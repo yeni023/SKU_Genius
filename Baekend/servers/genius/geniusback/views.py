@@ -121,7 +121,7 @@ class BooksViewSet(viewsets.ModelViewSet):
     def generate_books(self, request):
         writer = request.data.get('writer')
         image_url = request.data.get('image_url')
-        draft = Draft.objects.filter(writer=writer).first()
+        draft = Draft.objects.filter(writer=writer).order_by('-savedAt').first()
         intro = Intro.objects.filter(user=draft.user).order_by('-id').first()
         title = intro.subject
         new_book = Books(bookName=title, coverImg=image_url)
@@ -188,8 +188,8 @@ class DraftViewSet(viewsets.ModelViewSet):
     def create_book_cover(self, request):
         writer = request.data.get('writer')
 
-        draft = Draft.objects.filter(writer=writer).first()
-        pages = DraftPage.objects.filter(user=draft.user).order_by('pageNum')
+        draft = Draft.objects.filter(writer=writer).order_by('-savedAt').first()
+        pages = DraftPage.objects.filter(draft=draft).order_by('pageNum')
         full_text = ' '.join(page.pageContent for page in pages)
         try:
             image_url = generate_image(full_text)
@@ -203,8 +203,8 @@ class DraftViewSet(viewsets.ModelViewSet):
     def get_page_content(self, request):
         writer = request.data.get('writer')
 
-        draft = Draft.objects.filter(writer=writer).first()
-        draft_pages = DraftPage.objects.filter(user=draft.user).order_by('pageNum')
+        draft = Draft.objects.filter(writer=writer).order_by('-savedAt').first()
+        draft_pages = DraftPage.objects.filter(draft=draft).order_by('pageNum')
         contents = [page.pageContent for page in draft_pages]
 
         return Response({
@@ -329,7 +329,7 @@ class IntroViewSet(viewsets.ModelViewSet):
             return Response({"error": "Draft is required"}, status=status.HTTP_404_NOT_FOUND)
 
         diff = draft.diff
-        name_prompt = (f"주제 {selected_subject}를 기반해서 주인공의 이름을 한글로 {diff}개만 생성해."
+        name_prompt = (f"주제 {selected_subject}를 기반해서 주인공의 이름을 각각 다르게 {diff}개만 생성해."
         f"주인공의 이름만을 출력해야 하며, 주인공의 이름 하나를 출력할 때마다 줄바꿈을 진행하여"
         f"전체 답변은 정확히 공백 없이 {diff}개의 문장으로 구성되어야 해.")
 
@@ -748,9 +748,10 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         if total_pages == 1:
             alpha_question_prompt = (f"이야기의 주제인 {selected_subject}와 "
                                      f"이야기의 주인공 이름 {intro_content}을 보고, "
-                                     f"주인공에 대한 성격을 한글로 {diff}개만 생성해."
-                                     f"주인공에 대한 성격만을 출력해야 하며, 성격 하나를 출력할 때마다 줄바꿈을 진행하여"
-                                     f"전체 답변은 정확히 공백 없이 {diff}개 문장으로 구성되어야 하고")
+                                     f"주인공에 대한 성격을 서로 다른 {diff}개의 답변을 한글로 각각 한 문장씩 생성해."
+                                     f"이때 각 답변은 독립적이고, 다른 답변과 이어지지 않게 해."
+                                     f"각 답변은 새로운 줄에 답변해."
+                                     f"예를 들어, '용감한', '창의적인' ... 등 각 성격을 구분지어서 출력해야 해.")
             try:
                 response = generate(alpha_question_prompt)
                 if isinstance(response, str):
@@ -771,11 +772,12 @@ class DraftPageViewSet(viewsets.ModelViewSet):
             })
 
         if total_pages == 2:
-            alpha_question_prompt = (f"이야기의 주제인 {selected_subject}과"
+            alpha_question_prompt = (f"이야기의 주제인 {selected_subject}과,"
                                      f"이야기의 주인공 이름 {intro_content}을 참고해서"
-                                     f"주인공이 살고있는 장소를 한글로 {diff}개만 생성해."
-                                     f"주인공이 살고있는 장소만을 출력해야 하며, 장소 하나를 출력할 때마다 줄바꿈을 진행하여"
-                                     f"전체 답변은 정확히 공백 없이 {diff}개 문장으로 구성되어야 하고, 주인공이 살고있는 장소만을 한글로 생성해야 해.")
+                                     f"해당 주인공이 살고있는 장소를 서로 다른 {diff}개의 답변을 한글로 각각 한 문장씩 생성해."
+                                     f"이때 각 답변을 독립적이고, 다른 답변과 이어지지 않게 해."
+                                     f"각 답변은 새로운 줄에 작성해."
+                                     f"예를 들어, '깊은 산 속', '마을' .. 등 각 장소를 구분지어서 답변해야해.")
             try:
                 response = generate(alpha_question_prompt)
                 if isinstance(response, str):
@@ -805,17 +807,18 @@ class DraftPageViewSet(viewsets.ModelViewSet):
             try:
                 response = generate(first_question_prompt)
                 if isinstance(response, str):
-                    first_question = response.split('\n')
+                    first_question = response.strip()
                 else:
                     return Response({'error': 'Invalid response format'},
                                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            second_question_prompt = (f"지금까지의 줄거리 {context}와 이야기 관련 질문 {first_question}을 보고, "
-                                      f"그 질문에 부합하면서 창의적인 답변을 한글로 {diff}개만 생성해."
-                                      f"답변 하나를 출력할 때마다 줄바꿈을 진행하여"
-                                      f"전체 답변은 정확히 공백 없이 {diff}개 문장으로 구성되어야 해.")
+            second_question_prompt = (f"지금까지의 줄거리 {context}와, 이야기 관련 질문 {first_question}을 보고, "
+                                      f"해당 질문에 대한 서로 다른 {diff}개의 답변을 한글로 각각 한 문장씩 생성해."
+                                      f"이때 각 답변은 독립적이고, 다른 답변과 이어지지 않게 해."
+                                      f"각 답변은 새로운 줄에 작성해."
+                                      f"예를 들어, '주인공은 산으로 떠났다', '주인공은 바다로 떠났다' ... 등, 각 답변을 구분지어서 답변해야 해.")
             try:
                 response = generate(second_question_prompt)
                 if isinstance(response, str):
@@ -868,10 +871,11 @@ class DraftPageViewSet(viewsets.ModelViewSet):
 
             final_answer_prompt = (f"지금까지의 줄거리 {context}와 "
                                    f"이야기 관련 질문 {final_question}을 보고, "
-                                   f"그 질문에 부합하면서 창의적인 답변을 한글로 {diff}개만 생성해."
+                                   f"그 질문에 부합하면서 창의적인 답변을 각각 다른 한글 문장으로 {diff}개만 생성해."
                                    f"이야기는 거의 절정에 이르렀지만, 아직 이야기를 끝내면 안돼."
-                                   f"답변 하나를 출력할 때마다 줄바꿈을 진행하여"
-                                   f"전체 답변은 정확히 공백 없이 {diff}개의 문장으로 구성되어야 해.")
+                                   f"이때 답변 간 내용이 이어지지 않도록 줄바꿈으로 구분하고 답변해서"
+                                   f"전체 답변은 정확히 공백 없이 {diff}개의 문장으로 구성되어야 해."
+                                   f"예를 들어, '주인공은 산으로 떠났다', '주인공은 바다로 떠났다' ... 등, 각 답변을 구분지어서 답변해야 해.")
             try:
                 response = generate(final_answer_prompt)
                 if isinstance(response, str):
@@ -908,10 +912,12 @@ class DraftPageViewSet(viewsets.ModelViewSet):
 
             final_answer_prompt = (f"지금까지의 줄거리 {context}와 "
                                    f"동화를 끝내기 위한 질문 {final_question}을 보고, "
-                                   f"그 질문에 부합하면서 창의적인 답변을 한글로 {diff}개만 생성해."
+                                   f"그 질문에 부합하면서 창의적인 답변을 각각 다른 한글 문장으로 {diff}개만 생성해."
                                    f"이 선택지 이후로 동화는 끝나므로, 신중하게 질문해."
-                                   f"답변 하나를 출력할 때마다 줄바꿈을 진행하여여"
-                                   f"전체 답변은 정확히 공백 없이 {diff}개의 문장으로 구성되어야 해.")
+                                   f"한 답변이 끝나면 다음을 출력하기 전 줄바꿈을 진행해서"
+                                   f"전체 답변은 정확히 공백 없이 {diff}개의 문장으로 구성되어야 해."
+                                   f"예를 들어, '주인공은 산으로 떠났다', '주인공은 바다로 떠났다' ... 등, 각 답변을 구분지어서 답변해야 해.")
+
             try:
                 response = generate(final_answer_prompt)
                 if isinstance(response, str):
@@ -938,27 +944,30 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         question = request.data.get('question')
         selected_answer = request.data.get('selected_answer')
 
-        draft = Draft.objects.filter(writer=writer).first()
-        draft_page = DraftPage.objects.filter(user=draft.user).order_by('-pageNum').first()
+        draft = Draft.objects.filter(writer=writer).order_by('-savedAt').first()
+        draft_page = DraftPage.objects.filter(draft=draft).order_by('-pageNum').first()
         total_pages = draft_page.pageNum + 1
 
         if not selected_answer:
             return Response({'error': 'Selected answer is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        unite_prompt = (f"질문 {question}과 답변 {selected_answer}를 기반으로 한 페이지 분량의 동화 내용을 완성해."
+        unite_prompt = (f"질문 {question}과 답변 {selected_answer}를 기반으로 하여 정확히 3문장 분량의 동화 내용을 완성해."
         f"동화 내용은 한글로 생성되어야 하며, 아직은 동화를 끝내면 안돼.")
-        final_prompt = (f"질문 {question}과 답변 {selected_answer}를 기반으로 한 페이지 분량의 동화 내용을 완성해." 
+        final_prompt = (f"질문 {question}과 답변 {selected_answer}를 기반으로 하여 정확히 3문장 분량의 동화 내용을 완성해." 
         f"동화 내용은 한글로 생성되어야 하며, 동화는 후반부에 다다랐지만 아직 동화를 끝내선 안돼.")
-        finish_prompt = (f"질문 {question}과 답변 {selected_answer}를 기반으로 동화의 마지막을 장식할 한 페이지 분량의 동화 내용을 완성해."
+        finish_prompt = (f"질문 {question}과 답변 {selected_answer}를 기반으로 동화의 마지막을 장식할 정확히 3문장 분량의 동화 내용을 완성해."
         f"동화 내용은 한글로 생성되어야 해.")
 
         try:
             if 7 > total_pages:
                 response = generate(unite_prompt)
-            if 9 > total_pages > 6:
+            elif 10 > total_pages > 6:
                 response = generate(final_prompt)
-            if total_pages == 9:
+            elif total_pages == 10:
                 response = generate(finish_prompt)
+            else:
+                return Response({'error': 'Invalid page number'}, status=status.HTTP_400_BAD_REQUEST)
+
             if isinstance(response, str):
                 new_page = response.split('\n')
             else:
@@ -977,8 +986,8 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         writer = request.data.get('writer')
         page_num = request.data.get('page_num')
 
-        draft = Draft.objects.filter(writer=writer).first()
-        draft_page = DraftPage.objects.filter(user=draft.user, pageNum=page_num).first()
+        draft = Draft.objects.filter(writer=writer).order_by('savedAt').first()
+        draft_page = DraftPage.objects.filter(draft=draft, pageNum=page_num).first()
 
         image_prompt = f"이야기 내용: '{draft_page.pageContent}'. 이 내용을 바탕으로 상상력을 자극하는 이미지를 생성해."
 
@@ -997,7 +1006,7 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         writer = request.data.get('writer')
         page_num = request.data.get('page_num')
 
-        draft = Draft.objects.filter(writer=writer).first()
+        draft = Draft.objects.filter(writer=writer).order_by('-savedAt').first()
         draft_page = DraftPage.objects.filter(user=draft.user, pageNum=page_num).order_by('-pageNum').first()
 
         if draft_page.pageImage:
