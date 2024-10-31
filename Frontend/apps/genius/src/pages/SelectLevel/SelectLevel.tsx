@@ -40,7 +40,9 @@ const SelectLevel = () => {
         const drafts = response.data;
         if (drafts.length > 0) {
           const latestDraft = drafts.reduce((latest, draft) => {
-            return new Date(draft.savedAt) > new Date(latest.savedAt) ? draft : latest;
+            return new Date(draft.savedAt) > new Date(latest.savedAt)
+              ? draft
+              : latest;
           }, drafts[0]);
           setWriter(latestDraft.writer);
         }
@@ -80,10 +82,15 @@ const SelectLevel = () => {
         );
 
         console.log("난이도가 잘 전송되었습니다:", response.data);
+
+        // 주제 제목을 콘솔에 로그
+        const selectedTheme = location.state?.selected_subject;
+        console.log("선택된 주제:", selectedTheme);
+
+        // ChatAC로 navigate 할 때, 주제를 state로 전달
+        navigate("/ChatAC", { state: { selected_subject: selectedTheme } });
       } catch (error) {
         console.error("난이도 전송에 실패했습니다:", error);
-      } finally {
-        navigate("/ChatAC");
       }
     } else {
       console.log("선택된 난이도 또는 writer 정보가 없습니다.");
