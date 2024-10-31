@@ -128,9 +128,6 @@ const ThemePage: React.FC = () => {
           />
         ))}
       </Styles.ShapeContainer>
-      <Styles.Regenarate onClick={handleRefreshClick}>
-        <Styles.RegenarateImg src={Regenerate} />
-      </Styles.Regenarate>
     </Styles.BackgroundContainer>
   );
 };
