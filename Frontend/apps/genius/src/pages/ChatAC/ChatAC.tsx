@@ -130,7 +130,7 @@ const ChatAC: React.FC = () => {
         );
         console.log("make_draft_page API 성공: ", response.data); // 성공 로그
         setCurrentQuestion(response.data.question);
-        setCurrentAnswers(response.data.answers);
+        setCurrentAnswers(response.data.answers.filter(answer => answer.trim() !== ''));
         setQuestionCount((prevCount) => prevCount + 1);
       } else if (questionCount >= 6 && questionCount < 9) {
         const response = await axios.post<NextQuestionResponse>(
@@ -139,7 +139,7 @@ const ChatAC: React.FC = () => {
         );
         console.log("finish_draft_page API 성공: ", response.data); // 성공 로그
         setCurrentQuestion(response.data.question);
-        setCurrentAnswers(response.data.answers);
+        setCurrentAnswers(response.data.answers.filter(answer => answer.trim() !== ''));
         setQuestionCount((prevCount) => prevCount + 1);
       } else {
         setMessages((prevMessages) => [
