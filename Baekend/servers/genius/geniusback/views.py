@@ -199,7 +199,7 @@ class DraftViewSet(viewsets.ModelViewSet):
         return Response({'draft_id': draft.id, 'image_url': image_url})
 
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['post'])
     def get_page_content(self, request):
         writer = request.data.get('writer')
 
