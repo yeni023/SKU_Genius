@@ -1,11 +1,10 @@
-//ChatAC.tsx
 import React, { useState, useRef, useEffect } from "react";
 import * as C from "../../pages/StoryFlow/container";
 import Choices from "../../components/ChatAC/Choices";
 import * as Styles from "./ChatACStyle";
 import axios from "axios";
 import { initialMessages, initialChoices } from "./ACchatMessages";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Message {
   text: string;
@@ -36,6 +35,7 @@ const ChatAC: React.FC = () => {
   const [writer, setWriter] = useState<string>(""); // writer 상태 관리
   const currentPage = "ChatAC"; // currentPage를 정의합니다.
   const location = useLocation();
+  const navigate = useNavigate(); // useNavigate 초기화
   const selectedSubject = location.state?.selected_subject || "default_subject"; // 전달된 주제 받아오기
 
   useEffect(() => {
@@ -146,6 +146,8 @@ const ChatAC: React.FC = () => {
           ...prevMessages,
           { text: "모든 질문이 완료되었습니다.", isUser: false }
         ]);
+        // 모든 질문 완료 시 "다음으로" 옵션 표시
+        setCurrentAnswers(["다음으로"]);
       }
     } catch (error) {
       console.error("다음 질문을 가져오는 중 오류가 발생했습니다:", error);
@@ -174,11 +176,16 @@ const ChatAC: React.FC = () => {
       { text: choice, isUser: true }
     ]);
 
-    if (questionCount === 0) {
-      await saveSelectedIntro(choice);
+    if (choice === "다음으로") {
+      // "다음으로" 선택 시 ACRoading 페이지로 이동
+      navigate("/ACRoading");
     } else {
-      await saveSelectedAnswer(choice);
-      await fetchNextQuestion();
+      if (questionCount === 0) {
+        await saveSelectedIntro(choice);
+      } else {
+        await saveSelectedAnswer(choice);
+        await fetchNextQuestion();
+      }
     }
   };
 
@@ -194,9 +201,14 @@ const ChatAC: React.FC = () => {
                 {message.text}
               </Styles.Message>
             </Styles.MessageContainer>
-            {!message.isUser && index === messages.length - 1 && (
-              <Choices choices={currentAnswers} onSelect={handleChoiceSelect} />
-            )}
+            {!message.isUser &&
+              index === messages.length - 1 &&
+              currentAnswers.length > 0 && (
+                <Choices
+                  choices={currentAnswers}
+                  onSelect={handleChoiceSelect}
+                />
+              )}
           </React.Fragment>
         ))}
         <div ref={messagesEndRef} />
