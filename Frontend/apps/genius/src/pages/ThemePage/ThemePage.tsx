@@ -99,7 +99,9 @@ const ThemePage: React.FC = () => {
 
   const handleImageContainerClick = (theme: ThemeData) => {
     const titles = selectedTheme.map((t) => t.title);
-    navigate(`/ThemePageNext?id=${theme.id}`, { state: { titles } });
+    navigate(`/ThemePageNext?id=${theme.id}`, {
+      state: { titles, selected_subject: theme.title } // 선택한 주제 전달
+    });
   };
 
   const handleRefreshClick = () => {
