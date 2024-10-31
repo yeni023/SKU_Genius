@@ -329,8 +329,9 @@ class IntroViewSet(viewsets.ModelViewSet):
             return Response({"error": "Draft is required"}, status=status.HTTP_404_NOT_FOUND)
 
         diff = draft.diff
-        name_prompt = f"주제 {selected_subject}를 기반해서 주인공의 이름 {diff}개만 생성해.
-        답변은 주인공의 이름만을 출력해야 하며, 각 이름은 한 문장으로 짧게 표현하고, 전체 답변은 정확히 {diff}개의 문장으로 구성되어야 해."
+        name_prompt = (f"주제 {selected_subject}를 기반해서 주인공의 이름을 한글로 {diff}개만 생성해."
+        f"주인공의 이름만을 출력해야 하며, 주인공의 이름 하나를 출력할 때마다 줄바꿈을 진행하여"
+        f"전체 답변은 정확히 공백 없이 {diff}개의 문장으로 구성되어야 해.")
 
         try:
             response = generate(name_prompt)
@@ -363,7 +364,9 @@ class IntroViewSet(viewsets.ModelViewSet):
         if data:
             data.delete()
 
-        name_prompt = f"주제 {selected_subject}를 기반해서 주인공의 이름 {diff}개만 생성해."
+        name_prompt = (f"주제 {selected_subject}를 기반해서 주인공의 이름을 한글로 {diff}개만 생성해."
+                f"답변은 주인공의 이름만을 출력해야 하며, 각 이름은 한 문장으로 짧게 표현하고, 전체 답변은 정확히 {diff}개의 문장으로 구성되어야 해.")
+
         try:
             response = generate(name_prompt)
             if isinstance(response, str):
@@ -745,8 +748,9 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         if total_pages == 1:
             alpha_question_prompt = (f"이야기의 주제인 {selected_subject}와 "
                                      f"이야기의 주인공 이름 {intro_content}을 보고, "
-                                     f"주인공에 대한 성격 {diff}개를 단답형으로 생성해."
-                                     f"각 성격은 정확히 {diff}개 문장으로 구성되어야 해.")
+                                     f"주인공에 대한 성격을 한글로 {diff}개만 생성해."
+                                     f"주인공에 대한 성격만을 출력해야 하며, 성격 하나를 출력할 때마다 줄바꿈을 진행하여"
+                                     f"전체 답변은 정확히 공백 없이 {diff}개 문장으로 구성되어야 하고")
             try:
                 response = generate(alpha_question_prompt)
                 if isinstance(response, str):
@@ -769,8 +773,9 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         if total_pages == 2:
             alpha_question_prompt = (f"이야기의 주제인 {selected_subject}과"
                                      f"이야기의 주인공 이름 {intro_content}을 참고해서"
-                                     f"주인공이 살고있는 장소 {diff}개를 단답형으로 생성해."
-                                     f"주인공의 이름은 언급하지 말고 주인공이 살고있는 장소만을 생성해.")
+                                     f"주인공이 살고있는 장소를 한글로 {diff}개만 생성해."
+                                     f"주인공이 살고있는 장소만을 출력해야 하며, 장소 하나를 출력할 때마다 줄바꿈을 진행하여"
+                                     f"전체 답변은 정확히 공백 없이 {diff}개 문장으로 구성되어야 하고, 주인공이 살고있는 장소만을 한글로 생성해야 해.")
             try:
                 response = generate(alpha_question_prompt)
                 if isinstance(response, str):
@@ -795,7 +800,7 @@ class DraftPageViewSet(viewsets.ModelViewSet):
             context = ' '.join(
                 [page.pageContent for page in DraftPage.objects.filter(draft=draft).order_by('pageNum')])
             first_question_prompt = (f"지금까지의 줄거리야 : {context}. 이를 기반으로, "
-                                     f"이야기를 이어나가기 위해 이야기와 관련된 질문을 한가지만 해. 아직 이야기를 끝내면 안돼.")
+                                     f"이야기를 이어나가기 위한 한 가지의 질문을 한글로 작성해. 아직 이야기를 끝내면 안돼.")
 
             try:
                 response = generate(first_question_prompt)
@@ -808,7 +813,9 @@ class DraftPageViewSet(viewsets.ModelViewSet):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             second_question_prompt = (f"지금까지의 줄거리 {context}와 이야기 관련 질문 {first_question}을 보고, "
-                                      f"그 질문에 부합하면서 창의적인 답변 {diff}개를 단답형으로 생성해.")
+                                      f"그 질문에 부합하면서 창의적인 답변을 한글로 {diff}개만 생성해."
+                                      f"답변 하나를 출력할 때마다 줄바꿈을 진행하여"
+                                      f"전체 답변은 정확히 공백 없이 {diff}개 문장으로 구성되어야 해.")
             try:
                 response = generate(second_question_prompt)
                 if isinstance(response, str):
@@ -847,7 +854,8 @@ class DraftPageViewSet(viewsets.ModelViewSet):
 
         if 9 > total_pages > 6:
             final_question_prompt = (f"지금까지의 줄거리야 : {context}. 이를 기반으로, "
-                                     f"이야기를 마무리하기 위한 질문을 한가지만 해.")
+                                     f"이야기를 이어나가기 위한 한 가지의 질문을 한글로 작성해."
+                                     f"이야기는 거의 절정에 이르렀지만, 아직 이야기를 끝내면 안돼.")
             try:
                 response = generate(final_question_prompt)
                 if isinstance(response, str):
@@ -859,8 +867,11 @@ class DraftPageViewSet(viewsets.ModelViewSet):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             final_answer_prompt = (f"지금까지의 줄거리 {context}와 "
-                                   f"동화를 마무리할 질문 {final_question}을 보고, "
-                                   f"그 질문에 부합하면서 창의적인 답변 {diff}개를 단답형으로 생성해.")
+                                   f"이야기 관련 질문 {final_question}을 보고, "
+                                   f"그 질문에 부합하면서 창의적인 답변을 한글로 {diff}개만 생성해."
+                                   f"이야기는 거의 절정에 이르렀지만, 아직 이야기를 끝내면 안돼."
+                                   f"답변 하나를 출력할 때마다 줄바꿈을 진행하여"
+                                   f"전체 답변은 정확히 공백 없이 {diff}개의 문장으로 구성되어야 해.")
             try:
                 response = generate(final_answer_prompt)
                 if isinstance(response, str):
@@ -884,7 +895,7 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         if total_pages == 9:
             final_question_prompt = (f"지금까지의 줄거리야 : {context}."
                                      f"이야기를 끝내기 위한 질문을 한가지만 해."
-                                     f"이 질문 이후로 동화는 끝나므로, 신중하게 질문해.")
+                                     f"이 질문은 동화를 끝내기 위한 질문이니, 신중하게 질문해.")
             try:
                 response = generate(final_question_prompt)
                 if isinstance(response, str):
@@ -897,8 +908,10 @@ class DraftPageViewSet(viewsets.ModelViewSet):
 
             final_answer_prompt = (f"지금까지의 줄거리 {context}와 "
                                    f"동화를 끝내기 위한 질문 {final_question}을 보고, "
-                                   f"그 질문에 부합하면서 창의적인 답변 {diff}개를 단답형으로 생성해."
-                                   f"이 선택지 이후로 동화는 끝나므로, 신중하게 질문해.")
+                                   f"그 질문에 부합하면서 창의적인 답변을 한글로 {diff}개만 생성해."
+                                   f"이 선택지 이후로 동화는 끝나므로, 신중하게 질문해."
+                                   f"답변 하나를 출력할 때마다 줄바꿈을 진행하여여"
+                                   f"전체 답변은 정확히 공백 없이 {diff}개의 문장으로 구성되어야 해.")
             try:
                 response = generate(final_answer_prompt)
                 if isinstance(response, str):
@@ -932,9 +945,12 @@ class DraftPageViewSet(viewsets.ModelViewSet):
         if not selected_answer:
             return Response({'error': 'Selected answer is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        unite_prompt = f"질문 {question}과 답변 {selected_answer}를 기반으로 한 페이지 분량의 동화 내용 일부를 완성해. 또, 아직은 동화를 끝내면 안돼."
-        final_prompt = f"질문 {question}과 답변 {selected_answer}를 기반으로 동화의 끝은 아니지만, 후반부를 위한 한 페이지 분량의 동화 내용 일부를 완성해."
-        finish_prompt = f"질문 {question}과 답변 {selected_answer}를 기반으로 동화의 마지막을 장식할 한 페이지 분량의 동화 내용 일부를 완성해."
+        unite_prompt = (f"질문 {question}과 답변 {selected_answer}를 기반으로 한 페이지 분량의 동화 내용을 완성해."
+        f"동화 내용은 한글로 생성되어야 하며, 아직은 동화를 끝내면 안돼.")
+        final_prompt = (f"질문 {question}과 답변 {selected_answer}를 기반으로 한 페이지 분량의 동화 내용을 완성해." 
+        f"동화 내용은 한글로 생성되어야 하며, 동화는 후반부에 다다랐지만 아직 동화를 끝내선 안돼.")
+        finish_prompt = (f"질문 {question}과 답변 {selected_answer}를 기반으로 동화의 마지막을 장식할 한 페이지 분량의 동화 내용을 완성해."
+        f"동화 내용은 한글로 생성되어야 해.")
 
         try:
             if 7 > total_pages:
