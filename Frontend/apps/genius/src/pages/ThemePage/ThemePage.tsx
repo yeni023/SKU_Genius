@@ -1,9 +1,9 @@
-//ThemePage.tsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import * as C from "../../pages/StoryFlow/container";
 import Shape from "../../components/ThemePage/Shape";
 import * as Styles from "./ThemePageStyle";
+import ThemeRoading from "./ThemeRoading"; // 수정 1: ThemeRoading 컴포넌트 임포트
 import axios from "axios";
 
 interface ThemeData {
@@ -14,6 +14,7 @@ interface ThemeData {
 
 const ThemePage: React.FC = () => {
   const [selectedTheme, setSelectedTheme] = useState<ThemeData[]>([]);
+  const [loading, setLoading] = useState(true); // Loading state
   const location = useLocation();
   const navigate = useNavigate();
   const currentPage = "ThemePage";
@@ -59,9 +60,11 @@ const ThemePage: React.FC = () => {
           relatedIds.includes(parseInt(theme.id))
         );
         setSelectedTheme(relatedThemes);
+        setLoading(false); // Hide loading after setting themes
       }
     } else {
       if (writer) {
+        setLoading(true); // Show loading before API call
         const requestData = { writer, genre };
         axios
           .post(
@@ -83,8 +86,8 @@ const ThemePage: React.FC = () => {
             }));
             setSelectedTheme(subjectsData);
           })
-          .catch((error) => {
-            console.error("Failed to fetch themes:", error);
+          .finally(() => {
+            setLoading(false); // Hide loading after API completes
           });
       }
     }
@@ -92,39 +95,36 @@ const ThemePage: React.FC = () => {
 
   const handleImageContainerClick = (theme: ThemeData) => {
     const titles = selectedTheme.map((t) => t.title);
-    // 선택한 주제명을 콘솔에 표시
     console.log("선택한 주제 제목:", theme.title);
     navigate(`/ThemePageNext?id=${theme.id}`, {
-      state: { titles, selected_subject: theme.title } // 선택한 주제 전달
+      state: { titles, selected_subject: theme.title }
     });
-  };
-
-  const handleRefreshClick = () => {
-    const firstThemeIndex = themes.findIndex(
-      (theme) => theme.id === selectedTheme[0].id
-    );
-    const nextIndex =
-      firstThemeIndex + 3 < themes.length ? firstThemeIndex + 3 : 0;
-    setSelectedTheme(themes.slice(nextIndex, nextIndex + 3));
   };
 
   return (
     <Styles.BackgroundContainer>
       <C.Header2 currentPage={currentPage} />
-      <Styles.JustPadding1 />
-      <Styles.Title>주제가 될 새싹을 골라볼까?</Styles.Title>
-      <Styles.JustPadding2 />
-      <Styles.ShapeContainer>
-        {selectedTheme.map((theme, index) => (
-          <Shape
-            key={theme.id}
-            title={theme.title}
-            subjectImage={theme.subjectImage}
-            onImageContainerClick={() => handleImageContainerClick(theme)}
-            delay={(index + 1) * 1000}
-          />
-        ))}
-      </Styles.ShapeContainer>
+
+      {loading || selectedTheme.length === 0 ? (
+        <ThemeRoading /> // 로딩 중일 때 ThemeRoading 표시
+      ) : (
+        <>
+          <Styles.JustPadding1 />
+          <Styles.Title>주제가 될 새싹을 골라볼까?</Styles.Title>
+          <Styles.JustPadding2 />
+          <Styles.ShapeContainer>
+            {selectedTheme.map((theme, index) => (
+              <Shape
+                key={theme.id}
+                title={theme.title}
+                subjectImage={theme.subjectImage}
+                onImageContainerClick={() => handleImageContainerClick(theme)}
+                delay={(index + 1) * 1000}
+              />
+            ))}
+          </Styles.ShapeContainer>
+        </>
+      )}
     </Styles.BackgroundContainer>
   );
 };
