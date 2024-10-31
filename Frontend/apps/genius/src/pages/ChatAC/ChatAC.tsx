@@ -33,7 +33,6 @@ const ChatAC: React.FC = () => {
   const [questionCount, setQuestionCount] = useState<number>(0); // 질문 카운트
   const [writer, setWriter] = useState<string>(""); // writer 상태 관리
   const currentPage = "ChatAC"; // currentPage를 정의합니다.
-
   useEffect(() => {
     const fetchWriter = async () => {
       try {
@@ -86,7 +85,7 @@ const ChatAC: React.FC = () => {
         "http://localhost:8000/genius/intro/create_intro_content/",
         {
           writer: writer,
-          selected_subject: "horror"
+          selected_subject: "마법 숲의 비밀"
         }
       );
       setCurrentAnswers(response.data.intro_content);
@@ -148,7 +147,6 @@ const ChatAC: React.FC = () => {
       }
     } catch (error) {
       // make_draft_page 또는 finish_draft_page API 호출 오류 시 콘솔
-
       console.error("다음 질문을 가져오는 중 오류가 발생했습니다:", error);
     }
   };
