@@ -3,8 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import * as C from "../../pages/StoryFlow/container";
 import Shape from "../../components/ThemePage/Shape";
 import * as Styles from "./ThemePageStyle";
-import Regenerate from "../../assets/images/regenerate.png";
-import { themes, Theme } from "./themes";
 import axios from "axios";
 
 interface ThemeData {
@@ -75,7 +73,7 @@ const ThemePage: React.FC = () => {
             }
           )
           .then((response) => {
-            console.log("API Response: ", response.data); // 응답 로깅
+            console.log("API Response: ", response.data);
 
             const subjectsData = response.data.topics.map((topic, index) => ({
               id: index.toString(),
@@ -83,12 +81,6 @@ const ThemePage: React.FC = () => {
               subjectImage: response.data.images[index]
             }));
             setSelectedTheme(subjectsData);
-            console.log("response", response);
-            subjectsData.forEach((subject: any) => {
-              console.log("Title:", subject.title);
-              console.log("Subject Image:", subject.subjectImage);
-              console.log("id", subject.id);
-            });
           })
           .catch((error) => {
             console.error("Failed to fetch themes:", error);
@@ -99,7 +91,11 @@ const ThemePage: React.FC = () => {
 
   const handleImageContainerClick = (theme: ThemeData) => {
     const titles = selectedTheme.map((t) => t.title);
-    navigate(`/ThemePageNext?id=${theme.id}`, { state: { titles } });
+    // 선택한 주제명을 콘솔에 표시
+    console.log("선택한 주제 제목:", theme.title);
+    navigate(`/ThemePageNext?id=${theme.id}`, {
+      state: { titles, selected_subject: theme.title } // 선택한 주제 전달
+    });
   };
 
   const handleRefreshClick = () => {

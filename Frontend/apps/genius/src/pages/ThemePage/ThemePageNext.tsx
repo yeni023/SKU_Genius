@@ -1,32 +1,35 @@
-//ThemePageNext.tsx
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ShapeNext from "../../components/ThemePage/ShapeNext";
 import * as C from "../../pages/StoryFlow/container";
 import * as Styles from "./ThemePageStyle";
-//import { themes } from "./themes";
 
 const ThemePageNext: React.FC = () => {
   const location = useLocation();
-  const id = parseInt(new URLSearchParams(location.search).get("id") || "0");
-  const {titles} = location.state;
+  const { titles, selected_subject } = location.state || {};
   const navigate = useNavigate();
   const currentPage = "ThemePageNext";
-  console.log(titles);
+
+  // 선택한 주제명을 콘솔에 표시
+  console.log("선택한 주제:", selected_subject);
 
   const handleOkBtnClick = () => {
-    navigate(`/SelectLevel`);
+    navigate(`/SelectLevel`, {
+      state: { selected_subject } // selected_subject를 SelectLevel로 전달
+    });
   };
 
   const handleNoBtnClick = () => {
-    navigate(`/ThemePage?id=${id}`);
+    navigate(`/ThemePage?id=${selected_subject.id}`);
   };
 
   const getThemeIndex = (id: number) => {
     return Math.floor(id / 3);
   };
 
-  const themeIndex = getThemeIndex(id);
+  const themeIndex = getThemeIndex(
+    parseInt(new URLSearchParams(location.search).get("id") || "0")
+  );
   const startIndex = themeIndex * 3;
 
   const getComponentIndex = (id: number) => {
@@ -46,7 +49,11 @@ const ThemePageNext: React.FC = () => {
           <ShapeNext
             key={startIndex + index}
             title={titles[index]}
-            isFlower={getComponentIndex(id) === index}
+            isFlower={
+              getComponentIndex(
+                parseInt(new URLSearchParams(location.search).get("id") || "0")
+              ) === index
+            }
           />
         ))}
       </Styles.ShapeContainer>
