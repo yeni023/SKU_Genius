@@ -466,7 +466,7 @@ class IntroViewSet(viewsets.ModelViewSet):
                 {
                     "role": "user", "content": "I will try to create a fairy tale creation service."#동화 제작 서비스를 만들겁니다.
                     "Please write a story about the beginning of a fairy tale in 3 sentences based on the genre of the fairy tale,"#동화의 장르를 바탕으로 동화의 시작에 대한 이야기를 3개의 문장으로 작성해 주세요.
-                    "Name of the main character, gender, personality, age and a must-see story. 2~3줄 정도의 짧은 이야기를 생성해주세요. 그리고 다음 이야기 진행을 위한 질문을 작성해주세요."#주인공 이름, 성별, 성격, 나이 그리고 꼭 들어갔으면 하는 이야기, 그리고 다음 동화 이야기를 위한 짧은 질문도 같이 작성해주세요. 
+                    "Name of the main character, gender, personality, age and a must-see story. 2~3줄 정도의 짧은 이야기를 생성해주세요. 그리고 다음 이야기 진행을 위한 질문을 작성해주세요. 질문은 추상적이지 않고 어린아이가 이해할 수 있도록 쉽고 명확하게 해주세요."
                     "짧은 이야기를 생성해주세요. 그리고 개행하여 '다음 이야기를 위한 질문:'의 형태로 작성해주세요."
                 },
                 {
@@ -562,7 +562,7 @@ class IntroViewSet(viewsets.ModelViewSet):
                 {
                     "role": "user", "content": f"{contents}"
                     "Please write a story in 3 sentences"
-                    "제공되는 내용과 다음 이야기를 위한 질문에 대한 답변에 맞춰 자연스럽게 이어지게 2~3줄 정도의 짧은 이야기를 생성해주세요. 그리고 다음 이야기 진행을 위한 질문을 작성해주세요."#주인공 이름, 성별, 성격, 나이 그리고 꼭 들어갔으면 하는 이야기, 그리고 다음 동화 이야기를 위한 짧은 질문도 같이 작성해주세요. 
+                    "제공되는 내용과 다음 이야기를 위한 질문에 대한 답변에 맞춰 자연스럽게 이어지게 2~3줄 정도의 짧은 이야기를 생성해주세요. 그리고 다음 이야기 진행을 위한 질문을 작성해주세요. 그리고 다음 이야기 진행을 위한 질문을 작성해주세요. 질문은 추상적이지 않고 어린아이가 이해할 수 있도록 쉽고 명확하게 해주세요."
                     "짧은 이야기를 생성해주세요. 그리고 개행하여 '다음 이야기를 위한 질문:'의 형태로 작성해주세요."
                     "답변을 한글로 바꿔주세요."
                 },
@@ -624,7 +624,7 @@ class IntroViewSet(viewsets.ModelViewSet):
                 {   
                     "role": "user", "content": f"{contents}"
                     "Please write a story in 3 sentences"
-                    "제공되는 내용과 다음 이야기를 위한 질문에 대한 답변에 맞춰 자연스럽게 이어지게 2~3줄 정도의 짧은 이야기를 생성해주세요. 그리고 이야기의 종료를 위한 질문을 작성해주세요."#주인공 이름, 성별, 성격, 나이 그리고 꼭 들어갔으면 하는 이야기, 그리고 다음 동화 이야기를 위한 짧은 질문도 같이 작성해주세요. 
+                    "제공되는 내용과 다음 이야기를 위한 질문에 대한 답변에 맞춰 자연스럽게 이어지게 2~3줄 정도의 짧은 이야기를 생성해주세요. 그리고 이야기의 종료를 위한 질문을 작성해주세요. 그리고 다음 이야기 진행을 위한 질문을 작성해주세요. 질문은 추상적이지 않고 어린아이가 이해할 수 있도록 쉽고 명확하게 해주세요."
                     "짧은 이야기를 생성해주세요. 그리고 개행하여 '엔딩을 위한 질문:'의 형태로 작성해주세요."
                     "답변을 한글로 바꿔주세요."
                 },
@@ -690,9 +690,9 @@ class IntroViewSet(viewsets.ModelViewSet):
                 {"role": "system", "content": "You are a fairy tale writer for kids and teenager."},
                 {
                     "role": "user",
-                    "content": f"{contents}\n위의 내용을 이용해서 동화책을 작성해줘. 그런데 위의 내용 중에서 질문과 질문에 대한 답변을 그대로 동화책에 넣지 말고 자연스러운 이야기로 바꿔줘. 그리고 페이지 별로 띄어쓰기로 구분해줘. 답변을 한글로 바꿔줘."
+                    "content": f"{contents}\n위의 내용을 이용해서 어린이와 십대들을 위한 동화책을 작성해줘. 그런데 위의 내용 중에서 질문과 질문에 대한 답변을 그대로 동화책에 넣지 말고 자연스러운 이야기로 바꿔줘. 그리고 페이지 별로 띄어쓰기로 구분해줘. 답변을 한글로 바꿔줘."
+                    "한 페이지의 내용에 **만 있는 내용은 출력하지 말아줘."
                     "답변을 줄 때, 동화책을 다 작성하고 '페이지 종료'라는 말을 붙여줘."
-                    "추가로 동화책을 작성하는 방법은 알려주지마"
                 },
             ]
         )
@@ -1034,7 +1034,26 @@ class DraftPageViewSet(viewsets.ModelViewSet):
             ]
         )
 
-        return Response({"message" : "동화 제목이 생성되었습니다.", "동화 제목":{completion.choices[0].message.content}}, status=status.HTTP_201_CREATED)
+        intro = Intro.objects.filter(draft=draft).order_by('-draft').first()
+
+        book_data = {
+            'bookName': completion.choices[0].message.content,
+            'draft': draft.id,
+            'bookShortStory': intro.subject
+        }
+        book_serializer = BooksSerializer(data=book_data)
+        if book_serializer.is_valid():
+            book_instance = book_serializer.save() 
+            my_library_data = {
+            'book': book_instance.id,
+            'user': user_id
+            }
+            my_library_serializer = MyLibrarySerializer(data=my_library_data)
+            if my_library_serializer.is_valid():
+                my_library_serializer.save()
+            return Response({"message" : "동화 제목이 생성되었습니다.", "동화 제목":{completion.choices[0].message.content}, "message2":"동화책 객체가 생성되었습니다.", "message3":"myLibrary 객체가 생성되었습니다."}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(book_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['post'])
     def bookshortstory(self, request):
