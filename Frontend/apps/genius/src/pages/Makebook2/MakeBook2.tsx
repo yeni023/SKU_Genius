@@ -98,6 +98,50 @@ const MakeBook2 = () => {
   const isFirstPage = currentPageIndex === 0;
   const isLastPage = currentPageIndex === allPageContents.length - 1;
 
+  // 이미지 생성 API 호출
+  const handleGenerateImage = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/genius/draftpage/create_content_image/",
+        {
+          page_num: currentPageIndex + 1, // 페이지 번호를 전달
+          writer: writer // 작가 이름을 전달
+        }
+      );
+
+      const imageUrl = response.data.image_url;
+      console.log("API Response:", response.data);
+
+      if (imageUrl) {
+        setPageImages((prevImages) => ({
+          ...prevImages,
+          [currentPageIndex]: imageUrl
+        }));
+        setGeneratedImageUrl(imageUrl); // 생성된 이미지 URL 저장
+        setShowNewImage(true); // 새 이미지 표시
+      } else {
+        console.error("생성된 이미지 URL이 없습니다.");
+      }
+    } catch (error) {
+      console.error("이미지 생성 중 오류가 발생했습니다:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImageButtonClick = () => {
+    setShowFullscreenImage(true);
+  };
+
+  const handleOverlayButton1Click = () => {
+    setShowFullscreenImage(false);
+  };
+
+  const handleOverlayButton2Click = () => {
+    handleGenerateImage(); // 이미지 생성 버튼 클릭 시 호출
+  };
+
   return (
     <Container>
       <C.Header2 currentPage={currentPage} />
@@ -106,15 +150,14 @@ const MakeBook2 = () => {
           <FullscreenImage />
           <MakeBookImage />
           <OverlayButtonWrapper>
-            <OverlayButton1 onClick={() => setShowFullscreenImage(false)} />
-            <OverlayButton2
-              onClick={() => handleGenerateImage(currentPageIndex + 1)}
-            />
+            <OverlayButton1 onClick={handleOverlayButton1Click} />
+            <OverlayButton2 onClick={handleOverlayButton2Click} />{" "}
+            {/* MakeBookBtn2 클릭 시 스피너 시작 */}
           </OverlayButtonWrapper>
         </>
       )}
       <BookImageContainer>
-        <BookImage onClick={() => console.log("BookImage clicked")} />
+        <BookImage onClick={handleImageButtonClick} />
         {allPageContents.length > 1 && (
           <>
             {/* Previous Page Button */}
@@ -148,7 +191,7 @@ const MakeBook2 = () => {
         ) : showNewImage && generatedImageUrl ? (
           <NewImage imageUrl={generatedImageUrl} />
         ) : (
-          <ImageButton onClick={() => console.log("ImageButton clicked")} />
+          <ImageButton onClick={handleImageButtonClick} />
         )}
       </ImageTextBox>
       <TextImageContainer>
