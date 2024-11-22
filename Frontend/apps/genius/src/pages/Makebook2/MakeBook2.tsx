@@ -1,6 +1,7 @@
 import * as C from "../StoryFlow/container";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Container,
   BookImage,
@@ -22,64 +23,72 @@ import {
   NewImage,
   BottomRightButton,
   ArrowButton,
-  Arrow_Image
+  Arrow_Image,
+  SpinnerContainer2
 } from "./MakeBook2";
-
 import right from "../../assets/images/right.svg";
+import left from "../../assets/images/left.svg";
+import spinner from "../../assets/images/Spinner_MakeBook2.gif"; // 스피너 이미지
 
 const MakeBook2 = () => {
   const currentPage = "MakeBook2";
   const [showFullscreenImage, setShowFullscreenImage] = useState(false);
   const [showImageButton, setShowImageButton] = useState(true);
   const [showNewImage, setShowNewImage] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
+    null
+  );
+  const [pageImages, setPageImages] = useState<{ [key: number]: string }>({});
+  const [allPageContents, setAllPageContents] = useState<
+    { pageContent: string }[]
+  >([]);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const navigate = useNavigate();
+  const writer = "User's writer name"; // 실제로 사용할 때 API나 상태에서 받아온 작가 이름 설정
 
-  const nextpage = () => {
-    console.log("다음 장");
-    navigate("/LastPage");
-  };
-
-  const handleImageClick = (type: string) => {
-    console.log(` ${type}`);
-  };
-
-  const handleImageButtonClick = () => {
-    setShowFullscreenImage(true);
-  };
-
-  const handleCustomButtonClick = () => {
-    console.log("Custom button clicked");
-  };
-
-  const handleCustomButton2Click = () => {
-    console.log("Custom button 2 clicked");
-  };
-
-  const handleOverlayButton1Click = () => {
-    setShowFullscreenImage(false);
-  };
-
-  const handleOverlayButton2Click = () => {
-    setShowImageButton(false);
-    setShowNewImage(true);
-    setShowFullscreenImage(false);
-  };
-
-  const handleBottomRightButtonClick = () => {
-    setShowImageButton(true);
-    setShowNewImage(false);
-  };
-
+  // Fetch storybook content API
   useEffect(() => {
-    if (showFullscreenImage) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-    return () => {
-      document.body.style.overflow = "auto";
+    const fetchPageContent = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/genius/draftpage",
+          {
+            params: { writer: writer }
+          }
+        );
+
+        const pageData = response.data;
+        if (pageData && pageData.length > 0) {
+          setAllPageContents(pageData); // 모든 페이지 데이터 저장
+          setCurrentPageIndex(0); // 첫 페이지부터 시작
+        } else {
+          setAllPageContents([{ pageContent: "No content available." }]);
+        }
+      } catch (error) {
+        console.error("Error fetching page content:", error);
+        setAllPageContents([{ pageContent: "Failed to load content." }]);
+      }
     };
-  }, [showFullscreenImage]);
+
+    fetchPageContent();
+  }, [writer]);
+
+  // Functions to handle next and previous page navigation
+  const handleNextPage = () => {
+    if (currentPageIndex < allPageContents.length - 1) {
+      setCurrentPageIndex((prevIndex) => prevIndex + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPageIndex > 0) {
+      setCurrentPageIndex((prevIndex) => prevIndex - 1);
+    }
+  };
+
+  const isFirstPage = currentPageIndex === 0;
+  const isLastPage = currentPageIndex === allPageContents.length - 1;
 
   return (
     <Container>
@@ -89,37 +98,65 @@ const MakeBook2 = () => {
           <FullscreenImage />
           <MakeBookImage />
           <OverlayButtonWrapper>
-            <OverlayButton1 onClick={handleOverlayButton1Click} />
-            <OverlayButton2 onClick={handleOverlayButton2Click} />
+            <OverlayButton1 onClick={() => setShowFullscreenImage(false)} />
+            <OverlayButton2
+              onClick={() => handleGenerateImage(currentPageIndex + 1)}
+            />
           </OverlayButtonWrapper>
         </>
       )}
       <BookImageContainer>
-        <BookImage onClick={() => handleImageClick("BookImage")} />
-        <ArrowButton onClick={nextpage}>
-          <Arrow_Image src={right} alt="right" />
-        </ArrowButton>
+        <BookImage onClick={() => console.log("BookImage clicked")} />
+        {allPageContents.length > 1 && (
+          <>
+            {/* Previous Page Button */}
+            <ArrowButton
+              onClick={handlePreviousPage}
+              style={{ left: "150px", right: "auto" }}
+              disabled={isFirstPage}
+            >
+              <Arrow_Image src={left} alt="left" />
+            </ArrowButton>
+
+            {/* Next Page Button */}
+            <ArrowButton onClick={handleNextPage} disabled={isLastPage}>
+              <Arrow_Image src={right} alt="right" />
+            </ArrowButton>
+          </>
+        )}
       </BookImageContainer>
       <TextBoxContainer>
         <TextBox>
-          김미미는 갈색 머리에 까만 눈을 가지고 있어요. 미미는 매우 용감한 성격을 가진 소녀예요.
+          {allPageContents.length > 0
+            ? allPageContents[currentPageIndex].pageContent
+            : "Loading..."}
         </TextBox>
       </TextBoxContainer>
       <ImageTextBox>
-        {showImageButton ? (
-          <ImageButton onClick={handleImageButtonClick}></ImageButton>
+        {isLoading ? (
+          <SpinnerContainer2>
+            <img src={spinner} alt="로딩 중..." />
+          </SpinnerContainer2>
+        ) : showNewImage && generatedImageUrl ? (
+          <NewImage imageUrl={generatedImageUrl} />
         ) : (
-          showNewImage && <NewImage />
+          <ImageButton onClick={() => console.log("ImageButton clicked")} />
         )}
       </ImageTextBox>
       <TextImageContainer>
-        <TextImage onClick={() => handleImageClick("TextImage")} />
+        <TextImage onClick={() => console.log("TextImage clicked")} />
       </TextImageContainer>
       <ButtonWrapper>
-        <CustomButton onClick={handleCustomButtonClick}></CustomButton>
-        <CustomButton2 onClick={handleCustomButton2Click}></CustomButton2>
+        <CustomButton
+          onClick={() => console.log("Custom button clicked")}
+        ></CustomButton>
+        <CustomButton2
+          onClick={() => console.log("Custom button 2 clicked")}
+        ></CustomButton2>
       </ButtonWrapper>
-      <BottomRightButton onClick={handleBottomRightButtonClick} />
+      <BottomRightButton
+        onClick={() => console.log("BottomRightButton clicked")}
+      />
     </Container>
   );
 };
