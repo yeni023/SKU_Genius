@@ -60,8 +60,16 @@ const MakeBook2 = () => {
 
         const pageData = response.data;
         if (pageData && pageData.length > 0) {
-          setAllPageContents(pageData); // 모든 페이지 데이터 저장
-          setCurrentPageIndex(0); // 첫 페이지부터 시작
+          // Filter out unwanted characters like [,] from the content
+          const sanitizedData = pageData.map(
+            (item: { pageContent: string }) => ({
+              ...item,
+              pageContent: item.pageContent.replace(/[\[\]]/g, "") // Remove [ and ]
+            })
+          );
+
+          setAllPageContents(sanitizedData); // Save sanitized data
+          setCurrentPageIndex(0); // Start from the first page
         } else {
           setAllPageContents([{ pageContent: "No content available." }]);
         }
