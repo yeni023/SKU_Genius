@@ -1,6 +1,7 @@
 import * as C from "../StoryFlow/container";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Container,
   BookImage,
@@ -22,37 +23,115 @@ import {
   NewImage,
   BottomRightButton,
   ArrowButton,
-  Arrow_Image
+  Arrow_Image,
+  SpinnerContainer2
 } from "./MakeBook2";
-
 import right from "../../assets/images/right.svg";
+import left from "../../assets/images/left.svg";
+import spinner from "../../assets/images/Spinner_MakeBook2.gif"; // 스피너 이미지
 
 const MakeBook2 = () => {
   const currentPage = "MakeBook2";
   const [showFullscreenImage, setShowFullscreenImage] = useState(false);
   const [showImageButton, setShowImageButton] = useState(true);
   const [showNewImage, setShowNewImage] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
+    null
+  );
+  const [pageImages, setPageImages] = useState<{ [key: number]: string }>({});
+  const [allPageContents, setAllPageContents] = useState<
+    { pageContent: string }[]
+  >([]);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const navigate = useNavigate();
+  const writer = "User's writer name"; // 실제로 사용할 때 API나 상태에서 받아온 작가 이름 설정
 
-  const nextpage = () => {
-    console.log("다음 장");
-    navigate("/LastPage");
+  // Fetch storybook content API
+  useEffect(() => {
+    const fetchPageContent = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/genius/draftpage",
+          {
+            params: { writer: writer }
+          }
+        );
+
+        const pageData = response.data;
+        if (pageData && pageData.length > 0) {
+          // Filter out unwanted characters like [,] from the content
+          const sanitizedData = pageData.map(
+            (item: { pageContent: string }) => ({
+              ...item,
+              pageContent: item.pageContent.replace(/[\[\]]/g, "") // Remove [ and ]
+            })
+          );
+
+          setAllPageContents(sanitizedData); // Save sanitized data
+          setCurrentPageIndex(0); // Start from the first page
+        } else {
+          setAllPageContents([{ pageContent: "No content available." }]);
+        }
+      } catch (error) {
+        console.error("Error fetching page content:", error);
+        setAllPageContents([{ pageContent: "Failed to load content." }]);
+      }
+    };
+
+    fetchPageContent();
+  }, [writer]);
+
+  // Functions to handle next and previous page navigation
+  const handleNextPage = () => {
+    if (currentPageIndex < allPageContents.length - 1) {
+      setCurrentPageIndex((prevIndex) => prevIndex + 1);
+    }
   };
 
-  const handleImageClick = (type: string) => {
-    console.log(` ${type}`);
+  const handlePreviousPage = () => {
+    if (currentPageIndex > 0) {
+      setCurrentPageIndex((prevIndex) => prevIndex - 1);
+    }
+  };
+
+  const isFirstPage = currentPageIndex === 0;
+  const isLastPage = currentPageIndex === allPageContents.length - 1;
+
+  // 이미지 생성 API 호출
+  const handleGenerateImage = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/genius/draftpage/create_content_image/",
+        {
+          page_num: currentPageIndex + 1, // 페이지 번호를 전달
+          writer: writer // 작가 이름을 전달
+        }
+      );
+
+      const imageUrl = response.data.image_url;
+      console.log("API Response:", response.data);
+
+      if (imageUrl) {
+        setPageImages((prevImages) => ({
+          ...prevImages,
+          [currentPageIndex]: imageUrl
+        }));
+        setGeneratedImageUrl(imageUrl); // 생성된 이미지 URL 저장
+        setShowNewImage(true); // 새 이미지 표시
+      } else {
+        console.error("생성된 이미지 URL이 없습니다.");
+      }
+    } catch (error) {
+      console.error("이미지 생성 중 오류가 발생했습니다:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleImageButtonClick = () => {
     setShowFullscreenImage(true);
-  };
-
-  const handleCustomButtonClick = () => {
-    console.log("Custom button clicked");
-  };
-
-  const handleCustomButton2Click = () => {
-    console.log("Custom button 2 clicked");
   };
 
   const handleOverlayButton1Click = () => {
@@ -60,26 +139,8 @@ const MakeBook2 = () => {
   };
 
   const handleOverlayButton2Click = () => {
-    setShowImageButton(false);
-    setShowNewImage(true);
-    setShowFullscreenImage(false);
+    handleGenerateImage(); // 이미지 생성 버튼 클릭 시 호출
   };
-
-  const handleBottomRightButtonClick = () => {
-    setShowImageButton(true);
-    setShowNewImage(false);
-  };
-
-  useEffect(() => {
-    if (showFullscreenImage) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [showFullscreenImage]);
 
   return (
     <Container>
@@ -90,36 +151,63 @@ const MakeBook2 = () => {
           <MakeBookImage />
           <OverlayButtonWrapper>
             <OverlayButton1 onClick={handleOverlayButton1Click} />
-            <OverlayButton2 onClick={handleOverlayButton2Click} />
+            <OverlayButton2 onClick={handleOverlayButton2Click} />{" "}
+            {/* MakeBookBtn2 클릭 시 스피너 시작 */}
           </OverlayButtonWrapper>
         </>
       )}
       <BookImageContainer>
-        <BookImage onClick={() => handleImageClick("BookImage")} />
-        <ArrowButton onClick={nextpage}>
-          <Arrow_Image src={right} alt="right" />
-        </ArrowButton>
+        <BookImage onClick={handleImageButtonClick} />
+        {allPageContents.length > 1 && (
+          <>
+            {/* Previous Page Button */}
+            <ArrowButton
+              onClick={handlePreviousPage}
+              style={{ left: "150px", right: "auto" }}
+              disabled={isFirstPage}
+            >
+              <Arrow_Image src={left} alt="left" />
+            </ArrowButton>
+
+            {/* Next Page Button */}
+            <ArrowButton onClick={handleNextPage} disabled={isLastPage}>
+              <Arrow_Image src={right} alt="right" />
+            </ArrowButton>
+          </>
+        )}
       </BookImageContainer>
       <TextBoxContainer>
         <TextBox>
-          김미미는 갈색 머리에 까만 눈을 가지고 있어요. 미미는 매우 용감한 성격을 가진 소녀예요.
+          {allPageContents.length > 0
+            ? allPageContents[currentPageIndex].pageContent
+            : "Loading..."}
         </TextBox>
       </TextBoxContainer>
       <ImageTextBox>
-        {showImageButton ? (
-          <ImageButton onClick={handleImageButtonClick}></ImageButton>
+        {isLoading ? (
+          <SpinnerContainer2>
+            <img src={spinner} alt="로딩 중..." />
+          </SpinnerContainer2>
+        ) : showNewImage && generatedImageUrl ? (
+          <NewImage imageUrl={generatedImageUrl} />
         ) : (
-          showNewImage && <NewImage />
+          <ImageButton onClick={handleImageButtonClick} />
         )}
       </ImageTextBox>
       <TextImageContainer>
-        <TextImage onClick={() => handleImageClick("TextImage")} />
+        <TextImage onClick={() => console.log("TextImage clicked")} />
       </TextImageContainer>
       <ButtonWrapper>
-        <CustomButton onClick={handleCustomButtonClick}></CustomButton>
-        <CustomButton2 onClick={handleCustomButton2Click}></CustomButton2>
+        <CustomButton
+          onClick={() => console.log("Custom button clicked")}
+        ></CustomButton>
+        <CustomButton2
+          onClick={() => console.log("Custom button 2 clicked")}
+        ></CustomButton2>
       </ButtonWrapper>
-      <BottomRightButton onClick={handleBottomRightButtonClick} />
+      <BottomRightButton
+        onClick={() => console.log("BottomRightButton clicked")}
+      />
     </Container>
   );
 };
